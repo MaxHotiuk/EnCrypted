@@ -4,17 +4,16 @@ using EnCryptedAPI.Requests;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<EnCryptedDBContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("localDb")));
 
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -23,23 +22,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/api/users", (EnCryptedDBContext dbContext) =>
+app.UseCors(options =>
 {
-    var userController = new UsersController(dbContext);
-    var users = userController.GetAllUsers();
-    return Results.Ok(users);
-})
-.WithName("GetUsers")
-.WithOpenApi();
+    options.WithOrigins("http://localhost:4200")
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+});
 
-app.MapPost("/api/users", (EnCryptedDBContext dbContext, AddUserRequestDto request) =>
-{
-    var userController = new UsersController(dbContext);
-    var user = userController.AddUser(request);
-    return Results.Ok(user);
-})
-.WithName("AddUser")
-.WithOpenApi();
+app.UseAuthorization();
+
+app.MapControllers();
 
 await app.RunAsync();
 
