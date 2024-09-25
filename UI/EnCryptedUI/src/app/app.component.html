@@ -181,15 +181,30 @@
   <div class="content">
     <ng-container *ngIf="users$ | async as users">
       <ng-container *ngIf="users.length > 0; else noUsers">
-        <ng-container *ngFor="let item of users; let i = index">
-          <p>{{ item.username }}</p>
+        <ng-container *ngFor="let user of users; let i = index">
+          <p>{{ user.username }}</p>
         </ng-container>
       </ng-container>
       <ng-template #noUsers>
         <p>No users found...</p>
       </ng-template>
     </ng-container>
+
+    <form (ngSubmit)="onSubmit()">
+      <div>
+        <label for="username">Username</label>
+        <input type="text" id="username" [(ngModel)]="username" name="username" required>
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" [(ngModel)]="password" name="password" required>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+
+    <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
   </div>
 </main>
 
+<!-- Контент, що завантажується з маршрутизації -->
 <router-outlet></router-outlet>

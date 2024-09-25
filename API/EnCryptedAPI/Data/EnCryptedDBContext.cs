@@ -14,5 +14,22 @@ namespace EnCryptedAPI.Data
         }
 
         public DbSet<User> Users { get; set; }   
+        public DbSet<UserRequests> UserRequests { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>( entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Username).IsRequired();
+                entity.Property(e => e.Password).IsRequired();
+            });
+            modelBuilder.Entity<UserRequests>( entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Text).IsRequired();
+                entity.Property(e => e.IsEncrypted).IsRequired();
+                entity.Property(e => e.UserId).IsRequired();
+            });
+        }
     }
 }
