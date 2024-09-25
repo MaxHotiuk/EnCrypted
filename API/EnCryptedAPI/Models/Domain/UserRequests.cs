@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace EnCryptedAPI.Models.Domain
 {
-    [Table("Users")]
-    public class User
+    [Table("UserRequests")]
+    public class UserRequests
     {
         [Key]
         public int Id { get; set; }
         [Required]
-        public required string Username { get; set; }
-        public string? Email { get; set; }
+        public required string Text { get; set; }
         [Required]
-        public required string Password { get; set; }
+        public required bool IsEncrypted { get; set; }
+        [Required]
+        [ForeignKey("UserId")]
+        public required int UserId { get; set; }
     }
 }

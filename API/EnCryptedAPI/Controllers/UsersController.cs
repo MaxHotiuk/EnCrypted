@@ -33,7 +33,7 @@ namespace EnCryptedAPI.Controllers
         {
             var user = new User
             {
-                Id = Guid.NewGuid(),
+                Id = _context.Users.Count() + 1,
                 Username = request.Username,
                 Email = request.Email,
                 Password = request.Password
@@ -43,6 +43,22 @@ namespace EnCryptedAPI.Controllers
             _context.SaveChanges();
 
             return Ok(user);
+        }
+
+        [ProducesResponseType(200)]
+        [HttpDelete]
+        public IActionResult DeleteUser(int id)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+
+            return Ok();
         }
     }
 }
