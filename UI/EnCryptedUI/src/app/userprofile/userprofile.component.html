@@ -1,0 +1,14 @@
+<h1>User Profile</h1>
+
+<div *ngIf="userData; else loading">
+  <p><strong>Username:</strong> {{ userData.username }}</p>
+  <p><strong>Email:</strong> {{ userData.email }}</p>
+  <p><strong>Full Name:</strong> {{ userData.fullName }}</p>
+  <!-- Add other user fields as necessary -->
+</div>
+
+<ng-template #loading>
+  <p>Loading user data...</p>
+</ng-template>
+
+<div *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</div>

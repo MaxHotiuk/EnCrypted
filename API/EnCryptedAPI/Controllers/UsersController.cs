@@ -1,64 +1,105 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EnCryptedAPI.Data;
 using EnCryptedAPI.Models.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using EnCryptedAPI.Requests;
+using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
 
 namespace EnCryptedAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private readonly EnCryptedDBContext _context;
-        public UsersController(EnCryptedDBContext context)
+        private readonly EnCryptedDbContext _context;
+        private readonly UserManager<User> _userManager;
+
+        public UserController(EnCryptedDbContext context, UserManager<User> userManager)
         {
-            this._context = context;
+            _context = context;
+            _userManager = userManager;
         }
 
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<User>), 200)]
-        public IActionResult GetAllUsers()
-        {
-            var contacts = _context.Users.ToList();
-            return Ok(contacts);
-        }
-
-        [HttpPost]
-        [ProducesResponseType(typeof(User), 200)]
-        public IActionResult AddUser(AddUserRequestDto request)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationDto)
         {
             var user = new User
             {
-                Id = _context.Users.Count() + 1,
-                Username = request.Username,
-                Email = request.Email,
-                Password = request.Password
+                Id = Guid.NewGuid(),
+                UserName = registrationDto.Username,
+                Email = registrationDto.Email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(registrationDto.Password),
+                Role = "registered",
+                CreatedAt = DateTime.UtcNow,
+                LastLogin = null,
+                Tasks = new List<Models.Domain.Task>(),
+                EncryptionJobs = new List<EncryptionJob>(),
+                UserSettings = new List<UserSetting>(),
+                TaskHistories = new List<TaskHistory>()
             };
 
-            _context.Users.Add(user);
-            _context.SaveChanges();
+            var result = await _userManager.CreateAsync(user);
 
-            return Ok(user);
-        }
-
-        [ProducesResponseType(200)]
-        [HttpDelete]
-        public IActionResult DeleteUser(int id)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
-            if (user == null)
+            if (result.Succeeded)
             {
-                return NotFound();
+                return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
             }
 
-            _context.Users.Remove(user);
-            _context.SaveChanges();
+            return BadRequest(result.Errors);
+        }
 
-            return Ok();
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
+        {
+            var user = await _userManager.FindByNameAsync(loginDto.Username);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+
+            user.LastLogin = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            // Return user info or token
+            return Ok(new { user.Id, user.UserName, user.Email, user.LastLogin });
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetUser(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            return Ok(new { user.Id, user.UserName, user.Email, user.LastLogin });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userManager.Users.ToListAsync();
+
+            if (!users.Any())
+            {
+                return NotFound("No users found.");
+            }
+
+            var userDtos = users.Select(user => new 
+            {
+                user.Id,
+                user.UserName,
+                user.Email,
+                user.LastLogin
+            });
+
+            return Ok(userDtos);
         }
     }
 }

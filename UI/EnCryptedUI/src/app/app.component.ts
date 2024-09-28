@@ -1,23 +1,14 @@
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { Observable } from 'rxjs';
-import { User } from '../models/user.model';
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HttpClientModule, CommonModule],
+  imports: [CommonModule, RouterOutlet, RouterLink],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  http = inject(HttpClient);
-
-  users$ = this.getUsers();
-
-  private getUsers(): Observable<User[]> {
-    return this.http.get<User[]>('http://localhost:5069/api/Users');
-  }
+  title = 'EnCryptedUI';
 }
