@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EnCryptedAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+679d06e25eedf388c07c6fc350ee00809afda286")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dadfef67633ee1f730e854d0a099f31536f9e11e")]
 [assembly: System.Reflection.AssemblyProductAttribute("EnCryptedAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EnCryptedAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
