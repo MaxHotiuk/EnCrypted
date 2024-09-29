@@ -11,9 +11,6 @@ namespace EnCryptedAPI.Models.Domain;
 [Table("Users")]
 public class User : IdentityUser<Guid>
 {
-    [Key]
-    public override Guid Id { get; set; }
-
     [Required, MaxLength(100)]
     public override string? UserName { get; set; }
 
@@ -22,9 +19,6 @@ public class User : IdentityUser<Guid>
 
     [Required]
     public override string? PasswordHash { get; set; }
-
-    [Required, MaxLength(50)]
-    public string Role { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; }
@@ -38,7 +32,6 @@ public class User : IdentityUser<Guid>
 
     public User()
     {
-        Role = string.Empty;
         Tasks = new HashSet<Task>();
         EncryptionJobs = new HashSet<EncryptionJob>();
         UserSettings = new HashSet<UserSetting>();
