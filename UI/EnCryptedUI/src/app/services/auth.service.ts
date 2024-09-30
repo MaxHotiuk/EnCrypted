@@ -6,6 +6,7 @@ import { RegisterRequest } from '../interfaces/register-request';
 import { map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
+import { UserDetail } from '../interfaces/user-detail'; // Add this line
 
 @Injectable({
   providedIn: 'root'
@@ -90,5 +91,18 @@ export class AuthService {
       role: decodedToken.role || []
     }
     return userDetails;
+  }
+
+  getAllUsers = () : Observable<UserDetail[]> => {
+    return this.http.get<UserDetail[]>(`${this.apiBaseUrl}User`);
+  }
+
+  getUserRoles = () : string[] | null => {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+    const decodedToken:any = jwtDecode(token);
+    return decodedToken.role || null;
   }
 }
