@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonModule, NgIf } from '@angular/common';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +18,8 @@ import { CommonModule, NgIf } from '@angular/common';
     RouterLink,
     MatMenuModule,
     NgIf,
-    CommonModule
+    CommonModule,
+    MatSnackBarModule
   ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
@@ -25,8 +27,19 @@ import { CommonModule, NgIf } from '@angular/common';
 export class NavbarComponent {
   authService=inject(AuthService);
   router=inject(Router);
+  matSnackBar=inject(MatSnackBar);
 
   isLoggedIn() {
     return this.authService.isLoggedIn();
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/']);
+    this.matSnackBar.open('Logged out successfully', 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
   }
 }
