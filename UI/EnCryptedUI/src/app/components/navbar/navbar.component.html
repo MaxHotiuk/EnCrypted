@@ -6,7 +6,7 @@
     <a routerLink="/">EnCrypted</a>
     <div class="w-full"></div>
       <div *ngIf="isLoggedIn()">
-        <div class="flex gap-5 items-center" *ngIf="authService.getUserDetails() as userDetails">
+        <div class="user-details" *ngIf="authService.getUserDetails() as userDetails">
           <a [matMenuTriggerFor]="menu" class="flex gap-2 cursor-pointer items-center">
             <div class="font-bold shadow-md rounded-full w-5 h-5 p-5 flex justify-center items-center">
               {{ userDetails!.username[0].toUpperCase() }}
