@@ -1,64 +1,217 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EnCryptedAPI.Data;
 using EnCryptedAPI.Models.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using EnCryptedAPI.Requests;
+using BCrypt.Net;
+using Microsoft.EntityFrameworkCore;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
-namespace EnCryptedAPI.Controllers
+namespace EnCryptedAPI.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class UserController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    private readonly EnCryptedDbContext _context;
+    private readonly UserManager<User> _userManager;
+    private readonly IConfiguration _configuration;
+
+    public UserController(EnCryptedDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager, IConfiguration configuration)
     {
-        private readonly EnCryptedDBContext _context;
-        public UsersController(EnCryptedDBContext context)
+        _context = context;
+        _userManager = userManager;
+        _configuration = configuration;
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationDto)
+    {
+        var existingUser = await _userManager.FindByNameAsync(registrationDto.Username);
+
+        if (existingUser != null)
         {
-            this._context = context;
+            return BadRequest("User with this username already exists.");
         }
 
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<User>), 200)]
-        public IActionResult GetAllUsers()
+        var user = new User
         {
-            var contacts = _context.Users.ToList();
-            return Ok(contacts);
+            UserName = registrationDto.Username,
+            Email = registrationDto.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(registrationDto.Password),
+            CreatedAt = DateTime.UtcNow,
+            LastLogin = null,
+            Tasks = new List<Models.Domain.Task>(),
+            EncryptionJobs = new List<EncryptionJob>(),
+            UserSettings = new List<UserSetting>(),
+            TaskHistories = new List<TaskHistory>()
+        };
+
+        var result = await _userManager.CreateAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
         }
 
-        [HttpPost]
-        [ProducesResponseType(typeof(User), 200)]
-        public IActionResult AddUser(AddUserRequestDto request)
+        if (registrationDto.Roles is null)
         {
-            var user = new User
+            await _userManager.AddToRoleAsync(user, "registered");
+        }
+        else
+        {
+            foreach (var role in registrationDto.Roles)
             {
-                Id = _context.Users.Count() + 1,
-                Username = request.Username,
-                Email = request.Email,
-                Password = request.Password
-            };
-
-            _context.Users.Add(user);
-            _context.SaveChanges();
-
-            return Ok(user);
-        }
-
-        [ProducesResponseType(200)]
-        [HttpDelete]
-        public IActionResult DeleteUser(int id)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
-            if (user == null)
-            {
-                return NotFound();
+                await _userManager.AddToRoleAsync(user, role);
             }
-
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-
-            return Ok();
         }
+        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
+    {
+        var user = await _userManager.FindByNameAsync(loginDto.Username);
+
+        if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+        {
+            return Unauthorized("Invalid username or password.");
+        }
+
+        user.LastLogin = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        
+        var token = GenerateJwtToken(user);
+
+        return Ok(new {
+            Token = token,
+            Massage = "Login successful.",
+            IsSuccess = true
+            });
+    }
+
+    [HttpGet("{id}")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> GetUser(Guid id)
+    {
+        var user = await _userManager.FindByIdAsync(id.ToString());
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        return Ok(new { user.Id, user.UserName, user.Email, user.LastLogin });
+    }
+
+    [HttpGet("detail")]
+    public async Task<IActionResult> GetUserDetail()
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            return Unauthorized("User ID not found.");
+        }
+
+        var user = await _userManager.FindByIdAsync(currentUserId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        return Ok(new UserDetailDto
+        {
+            Username = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            Roles = [..await _userManager.GetRolesAsync(user)],
+            CreatedAt = user.CreatedAt,
+            LastLogin = user.LastLogin
+        });
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await _userManager.Users.ToListAsync();
+
+        if (!users.Any())
+        {
+            return NotFound("No users found.");
+        }
+
+        var userDtos = users.Select(user => new 
+        {
+            user.Id,
+            user.UserName,
+            user.Email,
+            user.LastLogin
+        });
+
+        return Ok(userDtos);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> DeleteUser(Guid id)
+    {
+        var user = await _userManager.FindByIdAsync(id.ToString());
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var result = await _userManager.DeleteAsync(user);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
+
+        return NoContent();
+    }
+
+    private string GenerateJwtToken(User user)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII
+            .GetBytes(_configuration.GetSection("JwtSettings").GetSection("SecurityKey").Value!);
+
+        var roles = _userManager.GetRolesAsync(user).Result;
+
+        List<Claim> claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+            new Claim(JwtRegisteredClaimNames.Aud, 
+                _configuration.GetSection("JwtSettings").GetSection("ValidAudience").Value!),
+            new Claim(JwtRegisteredClaimNames.Iss, _configuration.GetSection("JwtSettings").GetSection("ValidIssuer").Value!)
+        };
+
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(key),
+                SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        return tokenHandler.WriteToken(token);
     }
 }

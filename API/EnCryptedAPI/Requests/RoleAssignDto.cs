@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 namespace EnCryptedAPI.Requests
 {
-    public class AddUserRequestDto
+    public class RoleAssignDto
     {
         public required string Username { get; set; }
-        public string? Email { get; set; }
-        public required string Password { get; set; }
+        public required string Role { get; set; }
     }
 }
