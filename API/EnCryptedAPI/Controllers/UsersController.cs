@@ -87,12 +87,10 @@ public class UserController : ControllerBase
         
         var token = GenerateJwtToken(user);
 
-        return Ok(new { 
-            user.Id, 
-            user.UserName, 
-            user.Email, 
-            user.LastLogin,
-            Token = token
+        return Ok(new {
+            Token = token,
+            Massage = "Login successful.",
+            IsSuccess = true
             });
     }
 
