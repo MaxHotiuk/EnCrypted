@@ -1,5 +1,5 @@
 <div class="h-screen flex items-center justify-center">
-  <form class="shadow-md rounded-md p-5 bg-white w-1/6" [formGroup]="form" (ngSubmit)="login()">
+  <form class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md" [formGroup]="form" (ngSubmit)="login()">
     <div class="py-4">
       <h4 class="font-bold py-2">
         Login
@@ -27,7 +27,7 @@
     <div class="py-4 items-center text-center">
       <button
         [disabled]="form.invalid"
-        class="w-full rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button">
+        class="w-full rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="submit">
         Login
       </button>
     </div>

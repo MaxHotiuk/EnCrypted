@@ -5,11 +5,42 @@
     </button>
     <a routerLink="/">EnCrypted</a>
     <div class="w-full"></div>
-    <div>
-      <div class="flex gap5 items-center">
-        <a class="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button" routerLink="/login">Login</a>
-        <a class="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button" routerLink="/register">Register</a>
+      <div *ngIf="isLoggedIn()">
+        <div class="flex gap-5 items-center" *ngIf="authService.getUserDetails() as userDetails">
+          <a [matMenuTriggerFor]="menu" class="flex gap-2 cursor-pointer items-center">
+            <div class="font-bold shadow-md rounded-full w-5 h-5 p-5 flex justify-center items-center">
+              {{ userDetails!.username[0].toUpperCase() }}
+            </div>
+            <div class="flex flex-col">
+              <h1 class="p-0 m-0 font-medium">
+                {{ userDetails!.username }}
+              </h1>
+              <p class="p-0 m-0 font-medium text-xs text-slate-500">
+                {{ userDetails!.role }}
+              </p>
+            </div>
+          </a>
+          <mat-menu #menu="matMenu">
+            <button [routerLink]="['User', 1]" mat-menu-item>
+              <mat-icon>account_circle</mat-icon>
+              <span>Profile</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>settings</mat-icon>
+              <span>Settings</span>
+            </button>
+            <button mat-menu-item>
+              <mat-icon>exit_to_app</mat-icon>
+              <span>Logout</span>
+            </button>
+          </mat-menu>
+        </div>
       </div>
-    </div>
+      <div *ngIf="!isLoggedIn()">
+        <div class="flex gap5 items-center">
+          <a class="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button" routerLink="/login">Login</a>
+          <a class="rounded-md border border-transparent py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-100 focus:bg-slate-100 active:bg-slate-100 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none" type="button" routerLink="/register">Register</a>
+        </div>
+      </div>
   </mat-toolbar>
 </div>
