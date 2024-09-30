@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
 import { LoginRequest } from '../interfaces/login-request';
+import { RegisterRequest } from '../interfaces/register-request';
 import { map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
@@ -15,20 +16,31 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  login(data: LoginRequest):Observable<AuthResponse>
-  {
+  login(data: LoginRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiBaseUrl}User/login`, data)
       .pipe(
         map((response) => {
-          if(response.isSucces)
-          {
+          if (response.isSucces) {
             localStorage.setItem(this.tokenKey, response.token);
             return response;
           }
-        return response;
-      })
-    );
+          return response;
+        })
+      );
+  }
+
+  register(data: RegisterRequest): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiBaseUrl}User/register`, data)
+      .pipe(
+        map((response) => {
+          if (response.isSucces) {
+            return response;
+          }
+          return response;
+        })
+      );
   }
 
   isLoggedIn = (): boolean => {
@@ -38,7 +50,6 @@ export class AuthService {
     }
     return !this.isTokenExpired(token);
   }
-
 
   isTokenExpired = (token: string): boolean => {
     try {
@@ -72,7 +83,7 @@ export class AuthService {
     if (!token) {
       return null;
     }
-    const decodedToken: {name: string, email: string, role: string} = jwtDecode(token);
+    const decodedToken: { name: string, email: string, role: string } = jwtDecode(token);
     const userDetails = {
       username: decodedToken.name,
       email: decodedToken.email,
@@ -80,5 +91,4 @@ export class AuthService {
     }
     return userDetails;
   }
-
 }
