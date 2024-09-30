@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "dgSpecHash": "DUW+3FDXpR8=",
-  "success": true,
+  "dgSpecHash": "P5xUEp2/PaA=",
+  "success": false,
   "projectFilePath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/API/EnCryptedAPI/EnCryptedAPI.csproj",
   "expectedPackageFiles": [
     "/Users/maxhotiuk/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
@@ -53,6 +53,8 @@
     "/Users/maxhotiuk/.nuget/packages/microsoft.openapi/1.4.3/microsoft.openapi.1.4.3.nupkg.sha512",
     "/Users/maxhotiuk/.nuget/packages/microsoft.win32.systemevents/4.7.0/microsoft.win32.systemevents.4.7.0.nupkg.sha512",
     "/Users/maxhotiuk/.nuget/packages/mono.texttemplating/3.0.0-preview-0052-g5d0f76c785/mono.texttemplating.3.0.0-preview-0052-g5d0f76c785.nupkg.sha512",
+    "/Users/maxhotiuk/.nuget/packages/mysqlconnector/2.3.5/mysqlconnector.2.3.5.nupkg.sha512",
+    "/Users/maxhotiuk/.nuget/packages/pomelo.entityframeworkcore.mysql/9.0.0-preview.1/pomelo.entityframeworkcore.mysql.9.0.0-preview.1.nupkg.sha512",
     "/Users/maxhotiuk/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.1.8/sqlitepclraw.bundle_e_sqlite3.2.1.8.nupkg.sha512",
     "/Users/maxhotiuk/.nuget/packages/sqlitepclraw.core/2.1.8/sqlitepclraw.core.2.1.8.nupkg.sha512",
     "/Users/maxhotiuk/.nuget/packages/sqlitepclraw.lib.e_sqlite3/2.1.8/sqlitepclraw.lib.e_sqlite3.2.1.8.nupkg.sha512",
@@ -84,5 +86,15 @@
     "/Users/maxhotiuk/.nuget/packages/system.threading.channels/7.0.0/system.threading.channels.7.0.0.nupkg.sha512",
     "/Users/maxhotiuk/.nuget/packages/system.windows.extensions/4.7.0/system.windows.extensions.4.7.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1107",
+      "level": "Error",
+      "message": "Version conflict detected for Microsoft.EntityFrameworkCore.Relational. Install/reference Microsoft.EntityFrameworkCore.Relational 9.0.0-rc.1.24451.1 directly to project EnCryptedAPI to resolve this issue. \n EnCryptedAPI -> Microsoft.EntityFrameworkCore.Sqlite 9.0.0-rc.1.24451.1 -> Microsoft.EntityFrameworkCore.Sqlite.Core 9.0.0-rc.1.24451.1 -> Microsoft.EntityFrameworkCore.Relational (>= 9.0.0-rc.1.24451.1) \n EnCryptedAPI -> Pomelo.EntityFrameworkCore.MySql 9.0.0-preview.1 -> Microsoft.EntityFrameworkCore.Relational (>= 9.0.0-preview.1.24081.2 && <= 9.0.0-preview.1.999999).",
+      "libraryId": "Microsoft.EntityFrameworkCore.Relational",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }
