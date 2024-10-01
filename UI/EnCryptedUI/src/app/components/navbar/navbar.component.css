@@ -1,0 +1,12 @@
+.user-details {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  border-radius: 2rem; /* rounded-md */
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  transition: background-color 0.3s;
+}
+
+.user-details:hover {
+  background-color: rgba(235, 235, 239, 1); /* hover:rgba(235,235,239,255) */
+}

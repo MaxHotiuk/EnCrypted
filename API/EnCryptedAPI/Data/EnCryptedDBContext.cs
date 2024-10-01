@@ -4,15 +4,36 @@ using System.Linq;
 using System.Threading.Tasks;
 using EnCryptedAPI.Models.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace EnCryptedAPI.Data
+namespace EnCryptedAPI.Data;
+public class EnCryptedDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
-    public class EnCryptedDBContext : DbContext
+    public EnCryptedDbContext(DbContextOptions<EnCryptedDbContext> options)
+        : base(options)
     {
-        public EnCryptedDBContext(DbContextOptions<EnCryptedDBContext> options) : base(options)
-        {
-        }
+    }
 
-        public DbSet<User> Users { get; set; }   
+    public DbSet<EncryptionJob> EncryptionJobs { get; set; }
+    public DbSet<GeneralStatistic> GeneralStatistics { get; set; }
+    public DbSet<Models.Domain.Task> Tasks { get; set; }
+    public DbSet<TaskHistory> TaskHistories { get; set; }
+    public DbSet<UsageData> UsageData { get; set; }
+    public DbSet<UserStatistic> UserStatistics { get; set; }
+    public DbSet<UserSetting> UserSettings { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<User>().ToTable("Users");
+        builder.Entity<EncryptionJob>().ToTable("EncryptionJobs");
+        builder.Entity<GeneralStatistic>().ToTable("GeneralStatistics");
+        builder.Entity<Models.Domain.Task>().ToTable("Tasks");
+        builder.Entity<TaskHistory>().ToTable("TaskHistory");
+        builder.Entity<UsageData>().ToTable("UsageData");
+        builder.Entity<UserStatistic>().ToTable("Statistics");
+        builder.Entity<UserSetting>().ToTable("UserSettings");
     }
 }
