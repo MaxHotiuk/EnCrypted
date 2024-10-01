@@ -57,7 +57,12 @@ builder.Services.AddAuthentication( options =>
 });
 
 // Add controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    options.JsonSerializerOptions.WriteIndented = true; // Optional, for pretty-printing
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen( c => 
 {
