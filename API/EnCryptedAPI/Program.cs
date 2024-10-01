@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,9 +13,10 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
 const string BearerTokenExtensions = "Bearer";
 
-// Add services to the container.
+var connectionString = builder.Configuration.GetConnectionString("mySql");
 builder.Services.AddDbContext<EnCryptedDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("localDb")));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+);
 
 // Configure Identity
 builder.Services.AddIdentity<User, IdentityRole<Guid>>()

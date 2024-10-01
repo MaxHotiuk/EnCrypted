@@ -23,17 +23,17 @@ public class EnCryptedDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
     public DbSet<UserStatistic> UserStatistics { get; set; }
     public DbSet<UserSetting> UserSettings { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(builder);
 
-        modelBuilder.Entity<User>().ToTable("Users");
-        modelBuilder.Entity<EncryptionJob>().ToTable("EncryptionJobs");
-        modelBuilder.Entity<GeneralStatistic>().ToTable("GeneralStatistics");
-        modelBuilder.Entity<Models.Domain.Task>().ToTable("Tasks");
-        modelBuilder.Entity<TaskHistory>().ToTable("TaskHistory");
-        modelBuilder.Entity<UsageData>().ToTable("UsageData");
-        modelBuilder.Entity<UserStatistic>().ToTable("Statistics");
-        modelBuilder.Entity<UserSetting>().ToTable("UserSettings");
+        builder.Entity<User>().ToTable("Users");
+        builder.Entity<EncryptionJob>().ToTable("EncryptionJobs");
+        builder.Entity<GeneralStatistic>().ToTable("GeneralStatistics");
+        builder.Entity<Models.Domain.Task>().ToTable("Tasks");
+        builder.Entity<TaskHistory>().ToTable("TaskHistory");
+        builder.Entity<UsageData>().ToTable("UsageData");
+        builder.Entity<UserStatistic>().ToTable("Statistics");
+        builder.Entity<UserSetting>().ToTable("UserSettings");
     }
 }
