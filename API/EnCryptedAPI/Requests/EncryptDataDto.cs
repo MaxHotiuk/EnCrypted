@@ -9,5 +9,6 @@ namespace EnCryptedAPI.Requests
     {
         public string Data { get; set; } = null!;
         public Guid TaskID { get; set; }
+        public bool DataEncrypted { get; set; }
     }
 }

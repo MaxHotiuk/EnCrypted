@@ -27,7 +27,7 @@ namespace EnCryptedAPI.Controllers
             _context = context;
         }
 
-        [HttpPost("encrypt")]
+        [HttpPost("create")]
         [Authorize]
         public async Task<IActionResult> CreateEncryptTaskData([FromBody] EncryptDataDto request)
         {
@@ -41,7 +41,7 @@ namespace EnCryptedAPI.Controllers
             {
                 UserID = user.Id,
                 TaskID = request.TaskID,
-                DataEncrypted = false,
+                DataEncrypted = request.DataEncrypted,
                 EncryptedData = request.Data,
                 CreatedAt = DateTime.UtcNow
             };
@@ -51,61 +51,6 @@ namespace EnCryptedAPI.Controllers
             return Ok(job);
         }
 
-        [HttpPost("decrypt")]
-        [Authorize]
-        public async Task<IActionResult> GetDecryptedData([FromBody] EncryptDataDto request)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var job = new EncryptionJob
-            {
-                UserID = user.Id,
-                TaskID = request.TaskID,
-                DataEncrypted = true,
-                DecryptedData = request.Data,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _context.EncryptionJobs.AddAsync(job);
-            await _context.SaveChangesAsync();
-
-            return Ok(job);
-        }
-
-        [HttpPut("do")]
-        [Authorize]
-        public async Task<IActionResult> DoTask([FromBody] EncryptRequestDto request)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var job = await _context.EncryptionJobs.FirstOrDefaultAsync(j => j.JobID == request.encryptionJobId);
-            if (job == null)
-            {
-                return NotFound();
-            }
-
-            if (!job.DataEncrypted)
-            {
-                job.EncryptedData = job.DecryptedData != null ? Encryption.Encryption.Encrypt(job.DecryptedData, request.passPhrase) : null;
-            }
-            else
-            {
-                job.DecryptedData = job.EncryptedData != null ? Encryption.Encryption.Decrypt(job.EncryptedData, request.passPhrase) : null;
-            }
-
-            await _context.SaveChangesAsync();
-
-            return Ok(job);
-        }
-
-        //get all enc jobs for task
         [HttpGet("task/{taskId}")]
         [Authorize]
         public async Task<IActionResult> GetEncryptionJobsForTask(Guid taskId)
@@ -118,6 +63,47 @@ namespace EnCryptedAPI.Controllers
 
             var jobs = await _context.EncryptionJobs.Where(j => j.TaskID == taskId && j.UserID == user.Id).ToListAsync();
             return Ok(jobs);
+        }
+
+        [HttpGet("job/{jobId}")]
+        [Authorize]
+        public async Task<IActionResult> GetEncryptionJob(Guid jobId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var job = await _context.EncryptionJobs.FirstOrDefaultAsync(j => j.JobID == jobId && j.UserID == user.Id);
+            if (job == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(job);
+        }
+
+        [HttpDelete("job/{jobId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteEncryptionJob(Guid jobId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var job = await _context.EncryptionJobs.FirstOrDefaultAsync(j => j.JobID == jobId && j.UserID == user.Id);
+            if (job == null)
+            {
+                return NotFound();
+            }
+
+            _context.EncryptionJobs.Remove(job);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
