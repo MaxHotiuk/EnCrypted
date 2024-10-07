@@ -24,7 +24,6 @@ public class UserStatistic
     [Required]
     public DateTime Date { get; set; } = DateTime.UtcNow;
 
-    // Navigation Properties
     [ForeignKey(nameof(UserId))]
     public virtual User User { get; set; } = null!;
 }
