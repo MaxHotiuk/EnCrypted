@@ -105,5 +105,13 @@ namespace EnCryptedAPI.Controllers
 
             return Ok();
         }
+
+        [HttpGet("jobs")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> GetAllEncryptionJobs()
+        {
+            var jobs = await _context.EncryptionJobs.ToListAsync();
+            return Ok(jobs);
+        }
     }
 }
