@@ -5,6 +5,8 @@ import { HomeComponent } from './pages/home/home.component';
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 import { UsersComponent } from './pages/users/users.component';
+import { EncryptComponent } from './pages/encrypt/encrypt.component';
+import { NonAuthGuard } from './guards/nonauth.guard.spec';
 
 export const routes: Routes = [
   {
@@ -28,5 +30,10 @@ export const routes: Routes = [
     data: {
       roles: ['admin']
     }
+  },
+  {
+    path: 'encrypt',
+    component: EncryptComponent,
+    canActivate: [NonAuthGuard]
   }
 ];

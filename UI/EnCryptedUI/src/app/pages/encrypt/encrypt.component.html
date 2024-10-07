@@ -1,0 +1,42 @@
+<div class="h-screen flex-center">
+  <form class="w-70 max-w-none p-8 space-y-6 bg-white rounded-lg shadow-md" [formGroup]="form" (ngSubmit)="submitForm()">
+    <div class="py-4">
+      <h4 class="font-bold py-2">
+        Encryption / Decryption
+      </h4>
+      <p class="text-slate-600 text-base">
+        Enter the text you wish to encrypt or decrypt below.
+      </p>
+    </div>
+
+    <mat-form-field appearance="fill" class="w-full mat-form-field">
+      <mat-label>Title</mat-label>
+      <input matInput placeholder="Title" formControlName="jobName" class="mat-input-element border border-slate-300 rounded-md" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="w-full mat-form-field">
+      <mat-label>Text to Encrypt/Decrypt</mat-label>
+      <textarea matInput placeholder="Enter your text here" formControlName="text" class="large-textarea mat-input-element border border-slate-300 rounded-md"></textarea>
+    </mat-form-field>
+
+    <div class="py-4 items-center text-center space-y-2">
+      <button
+        (click)="encrypt()"
+        class="w-full rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800"
+        type="button">
+        Encrypt
+      </button>
+
+      <button
+        (click)="decrypt()"
+        class="w-full rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800"
+        type="button">
+        Decrypt
+      </button>
+    </div>
+
+    <div *ngIf="result" class="py-4">
+      <p>Result: {{ result }}</p>
+    </div>
+  </form>
+</div>
