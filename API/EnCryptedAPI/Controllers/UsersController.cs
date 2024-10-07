@@ -47,7 +47,6 @@ public class UserController : ControllerBase
             LastLogin = null,
             Tasks = new List<Models.Domain.Task>(),
             EncryptionJobs = new List<EncryptionJob>(),
-            UserSettings = new List<UserSetting>(),
             TaskHistories = new List<TaskHistory>()
         };
 
