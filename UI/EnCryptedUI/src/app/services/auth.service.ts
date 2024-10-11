@@ -6,7 +6,7 @@ import { RegisterRequest } from '../interfaces/register-request';
 import { map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode } from 'jwt-decode';
-import { UserDetail } from '../interfaces/user-detail'; // Add this line
+import { UserDetail } from '../interfaces/user-detail';
 
 @Injectable({
   providedIn: 'root'

@@ -1,42 +1,78 @@
-<div class="h-screen flex-center">
-  <form class="w-70 max-w-none p-8 space-y-6 bg-white rounded-lg shadow-md" [formGroup]="form" (ngSubmit)="submitForm()">
-    <div class="py-4">
-      <h4 class="font-bold py-2">
-        Encryption / Decryption
-      </h4>
-      <p class="text-slate-600 text-base">
-        Enter the text you wish to encrypt or decrypt below.
-      </p>
+<div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-2xl font-bold mb-6">Encryption/Decryption Task</h2>
+
+      <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-6">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Task Title</mat-label>
+          <input matInput formControlName="jobName" placeholder="Enter task title">
+          <mat-error *ngIf="form.get('jobName')?.hasError('required')">
+            Title is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Text Content</mat-label>
+          <textarea
+            matInput
+            formControlName="text"
+            placeholder="Enter text to encrypt/decrypt"
+            rows="6"
+          ></textarea>
+          <mat-error *ngIf="form.get('text')?.hasError('required')">
+            Text content is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Passphrase</mat-label>
+          <input
+            matInput
+            formControlName="passPhrase"
+            type="password"
+            placeholder="Enter passphrase"
+          >
+          <mat-error *ngIf="form.get('passPhrase')?.hasError('required')">
+            Passphrase is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Operation</mat-label>
+          <mat-select formControlName="operation">
+            <mat-option value="encrypt">Encrypt</mat-option>
+            <mat-option value="decrypt">Decrypt</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="space-y-4">
+          <div *ngIf="currentTaskId && progress < 100" class="space-y-2">
+            <p class="text-sm font-medium text-gray-700">Task Progress</p>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="progress"
+              class="h-2 rounded-full"
+            ></mat-progress-bar>
+            <p class="text-sm text-gray-500 text-right">{{progress}}%</p>
+          </div>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || isProcessing"
+            class="w-full py-2"
+          >
+            {{ isProcessing ? 'Processing...' : 'Start Task' }}
+          </button>
+        </div>
+      </form>
+
+      <div *ngIf="result" class="mt-6 p-4 bg-gray-50 rounded-lg">
+        <h3 class="text-lg font-medium mb-2">Result</h3>
+        <pre class="whitespace-pre-wrap break-words text-sm">{{result}}</pre>
+      </div>
     </div>
-
-    <mat-form-field appearance="fill" class="w-full mat-form-field">
-      <mat-label>Title</mat-label>
-      <input matInput placeholder="Title" formControlName="jobName" class="mat-input-element border border-slate-300 rounded-md" />
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="w-full mat-form-field">
-      <mat-label>Text to Encrypt/Decrypt</mat-label>
-      <textarea matInput placeholder="Enter your text here" formControlName="text" class="large-textarea mat-input-element border border-slate-300 rounded-md"></textarea>
-    </mat-form-field>
-
-    <div class="py-4 items-center text-center space-y-2">
-      <button
-        (click)="encrypt()"
-        class="w-full rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800"
-        type="button">
-        Encrypt
-      </button>
-
-      <button
-        (click)="decrypt()"
-        class="w-full rounded-md border border-slate-300 py-2 px-4 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 hover:border-slate-800 focus:text-white focus:bg-slate-800 focus:border-slate-800 active:border-slate-800 active:text-white active:bg-slate-800"
-        type="button">
-        Decrypt
-      </button>
-    </div>
-
-    <div *ngIf="result" class="py-4">
-      <p>Result: {{ result }}</p>
-    </div>
-  </form>
+  </div>
 </div>

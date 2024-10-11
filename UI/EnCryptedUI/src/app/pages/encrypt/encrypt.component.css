@@ -1,65 +1,6 @@
-/* encrypt.component.css */
-.h-screen {
-  height: 100vh;
+:host {
+  display: block;
 }
-
-.w-70 {
-  width: 70%;
-}
-
-.max-w-none {
-  max-width: none;
-}
-
-.p-8 {
-  padding: 2rem;
-}
-
-.space-y-6 > * + * {
-  margin-top: 1.5rem;
-}
-
-.bg-white {
-  background-color: #fff;
-}
-
-.rounded-lg {
-  border-radius: 0.5rem;
-}
-
-.shadow-md {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.text-center {
-  text-align: center;
-}
-
-.transition-all {
-  transition: all 0.3s;
-}
-
-.text-slate-600 {
-  color: #718096;
-}
-
-.large-textarea {
-  height: 300px; /* Adjust the height if necessary */
+.mat-mdc-form-field {
   width: 100%;
-  resize: both;
-}
-
-/* Center the form horizontally */
-.flex-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.mat-input-element {
-  padding: 0.5rem; /* Adjust the padding as necessary */
-}
-
-.mat-form-field {
-  margin-bottom: 1rem; /* Optional: Add spacing between form fields */
 }
