@@ -12,106 +12,106 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using EnCryptedAPI.Encryption;
 
-namespace EnCryptedAPI.Controllers
+namespace EnCryptedAPI.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class EncryptionJobsController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class EncryptionJobsController : ControllerBase
+    private readonly UserManager<User> _userManager;
+    private readonly EnCryptedDbContext _context;
+
+    public EncryptionJobsController(UserManager<User> userManager, EnCryptedDbContext context)
     {
-        private readonly UserManager<User> _userManager;
-        private readonly EnCryptedDbContext _context;
+        _userManager = userManager;
+        _context = context;
+    }
 
-        public EncryptionJobsController(UserManager<User> userManager, EnCryptedDbContext context)
+    [HttpPost("create")]
+    [Authorize]
+    public async Task<IActionResult> CreateEncryptTaskData([FromBody] EncryptDataDto request)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
         {
-            _userManager = userManager;
-            _context = context;
+            return Unauthorized();
         }
 
-        [HttpPost("create")]
-        [Authorize]
-        public async Task<IActionResult> CreateEncryptTaskData([FromBody] EncryptDataDto request)
+        var job = new EncryptionJob
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            UserID = user.Id,
+            TaskID = request.TaskID,
+            DataEncrypted = request.DataEncrypted,
+            EncryptedData = request.Data,
+            CreatedAt = DateTime.UtcNow,
+            PassPhrase = request.PassPhrase
+        };
+        await _context.EncryptionJobs.AddAsync(job);
+        await _context.SaveChangesAsync();
 
-            var job = new EncryptionJob
-            {
-                UserID = user.Id,
-                TaskID = request.TaskID,
-                DataEncrypted = request.DataEncrypted,
-                EncryptedData = request.Data,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _context.EncryptionJobs.AddAsync(job);
-            await _context.SaveChangesAsync();
+        return Ok(job);
+    }
 
-            return Ok(job);
+    [HttpGet("task/{taskId}")]
+    [Authorize]
+    public async Task<IActionResult> GetEncryptionJobsForTask(Guid taskId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return Unauthorized();
         }
 
-        [HttpGet("task/{taskId}")]
-        [Authorize]
-        public async Task<IActionResult> GetEncryptionJobsForTask(Guid taskId)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+        var jobs = await _context.EncryptionJobs.Where(j => j.TaskID == taskId && j.UserID == user.Id).ToListAsync();
+        return Ok(jobs);
+    }
 
-            var jobs = await _context.EncryptionJobs.Where(j => j.TaskID == taskId && j.UserID == user.Id).ToListAsync();
-            return Ok(jobs);
+    [HttpGet("job/{jobId}")]
+    [Authorize]
+    public async Task<IActionResult> GetEncryptionJob(Guid jobId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return Unauthorized();
         }
 
-        [HttpGet("job/{jobId}")]
-        [Authorize]
-        public async Task<IActionResult> GetEncryptionJob(Guid jobId)
+        var job = await _context.EncryptionJobs.FirstOrDefaultAsync(j => j.JobID == jobId && j.UserID == user.Id);
+        if (job == null)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var job = await _context.EncryptionJobs.FirstOrDefaultAsync(j => j.JobID == jobId && j.UserID == user.Id);
-            if (job == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(job);
+            return NotFound();
         }
 
-        [HttpDelete("job/{jobId}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteEncryptionJob(Guid jobId)
+        return Ok(job);
+    }
+
+    [HttpDelete("job/{jobId}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteEncryptionJob(Guid jobId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-
-            var job = await _context.EncryptionJobs.FirstOrDefaultAsync(j => j.JobID == jobId && j.UserID == user.Id);
-            if (job == null)
-            {
-                return NotFound();
-            }
-
-            _context.EncryptionJobs.Remove(job);
-            await _context.SaveChangesAsync();
-
-            return Ok();
+            return Unauthorized();
         }
 
-        [HttpGet("jobs")]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetAllEncryptionJobs()
+        var job = await _context.EncryptionJobs.FirstOrDefaultAsync(j => j.JobID == jobId && j.UserID == user.Id);
+        if (job == null)
         {
-            var jobs = await _context.EncryptionJobs.ToListAsync();
-            return Ok(jobs);
+            return NotFound();
         }
+
+        _context.EncryptionJobs.Remove(job);
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    [HttpGet("jobs")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> GetAllEncryptionJobs()
+    {
+        var jobs = await _context.EncryptionJobs.ToListAsync();
+        return Ok(jobs);
     }
 }

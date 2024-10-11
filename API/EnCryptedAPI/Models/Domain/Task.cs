@@ -36,6 +36,8 @@ public class Task
 
     public DateTime LastModified { get; set; } = DateTime.UtcNow;
 
+    public int Progress { get; set; } = 0;
+
     public virtual ICollection<EncryptionJob> EncryptionJobs { get; set; } = new List<EncryptionJob>();
     public virtual ICollection<TaskHistory> TaskHistories { get; set; } = new List<TaskHistory>();
 }

@@ -132,6 +132,7 @@ namespace EnCryptedAPI.Controllers
                 task.Description,
                 task.CreatedAt,
                 task.IsCompleted,
+                task.Progress,
             });
 
             return Ok(taskDtos);
