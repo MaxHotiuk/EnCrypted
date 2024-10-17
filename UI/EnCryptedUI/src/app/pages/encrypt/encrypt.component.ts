@@ -22,7 +22,9 @@ import { takeUntil } from 'rxjs/operators';
     MatSelectModule,
     MatButtonModule,
     MatProgressBarModule
-  ]
+  ],
+  templateUrl: './encrypt.component.html',
+  styleUrl: './encrypt.component.css'
 })
 export class EncryptComponent implements OnInit, OnDestroy {
   form!: FormGroup;

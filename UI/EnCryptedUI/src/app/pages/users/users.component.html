@@ -1,1 +1,25 @@
-<p>users works!</p>
+<div class="mx-60 py-10">
+  <h1 class="text-3xl font-bold">All Users</h1>
+  <table class="w-full rounded-md">
+      <thead>
+          <tr class="bg-gray-200">
+              <th class="py-4 border py-2">Login</th>
+              <th class="py-4 border py-2">Email</th>
+              <th class="py-4 border py-2">Role</th>
+          </tr>
+      </thead>
+      <tbody>
+          @for (user of users$ | async; track user.result.id) {
+              <tr>
+                  <td class="py-4 border py-2">{{user.result.userName}}</td>
+                  <td class="py-4 border py-2">{{user.result.email}}</td>
+                  <td class="py-4 border py-2">{{user.result.roles.$values.join(" , ")}}</td>
+              </tr>
+          } @empty {
+              <tr>
+                  <td colspan="3" class="py-4 border py-2 text-center">No users found</td>
+              </tr>
+          }
+      </tbody>
+  </table>
+</div>

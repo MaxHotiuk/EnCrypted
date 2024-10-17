@@ -9,11 +9,11 @@
         <div class="user-details" *ngIf="authService.getUserDetails() as userDetails">
           <a [matMenuTriggerFor]="menu" class="flex gap-2 cursor-pointer items-center">
             <div class="font-bold shadow-md rounded-full w-5 h-5 p-5 flex justify-center items-center">
-              {{ userDetails!.username[0].toUpperCase() }}
+              {{ userDetails!.name[0].toUpperCase() }}
             </div>
             <div class="flex flex-col">
               <h1 class="p-0 m-0 font-medium">
-                {{ userDetails!.username }}
+                {{ userDetails!.name }}
               </h1>
               <p class="p-0 m-0 font-medium text-xs text-slate-500">
                 {{ userDetails!.role }}

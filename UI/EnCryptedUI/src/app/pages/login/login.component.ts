@@ -40,8 +40,7 @@ export class LoginComponent implements OnInit {
           duration: 5000,
           horizontalPosition: 'center',
           verticalPosition: 'top'
-        })
-        localStorage.setItem('token', response.token);
+        });
         this.router.navigate(['/'])
       },
       error: (error) => {

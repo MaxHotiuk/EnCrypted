@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using EnCryptedAPI.Requests;
-using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -15,18 +14,11 @@ namespace EnCryptedAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController : ControllerBase
+public class UserController(EnCryptedDbContext context, UserManager<User> userManager, IConfiguration configuration) : ControllerBase
 {
-    private readonly EnCryptedDbContext _context;
-    private readonly UserManager<User> _userManager;
-    private readonly IConfiguration _configuration;
-
-    public UserController(EnCryptedDbContext context, UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager, IConfiguration configuration)
-    {
-        _context = context;
-        _userManager = userManager;
-        _configuration = configuration;
-    }
+    private readonly EnCryptedDbContext _context = context;
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly IConfiguration _configuration = configuration;
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationDto)
@@ -45,9 +37,9 @@ public class UserController : ControllerBase
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registrationDto.Password),
             CreatedAt = DateTime.UtcNow,
             LastLogin = null,
-            Tasks = new List<Models.Domain.Task>(),
-            EncryptionJobs = new List<EncryptionJob>(),
-            TaskHistories = new List<TaskHistory>()
+            Tasks = [],
+            EncryptionJobs = [],
+            TaskHistories = []
         };
 
         var result = await _userManager.CreateAsync(user);
@@ -83,14 +75,15 @@ public class UserController : ControllerBase
 
         user.LastLogin = DateTime.UtcNow;
         await _context.SaveChangesAsync();
-        
+
         var token = GenerateJwtToken(user);
 
-        return Ok(new {
+        return Ok(new
+        {
             Token = token,
             Massage = "Login successful.",
             IsSuccess = true
-            });
+        });
     }
 
     [HttpGet("{id}")]
@@ -108,6 +101,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("detail")]
+    [Authorize]
     public async Task<IActionResult> GetUserDetail()
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -128,7 +122,7 @@ public class UserController : ControllerBase
         {
             Username = user.UserName ?? string.Empty,
             Email = user.Email ?? string.Empty,
-            Roles = [..await _userManager.GetRolesAsync(user)],
+            Roles = [.. await _userManager.GetRolesAsync(user)],
             CreatedAt = user.CreatedAt,
             LastLogin = user.LastLogin
         });
@@ -145,12 +139,13 @@ public class UserController : ControllerBase
             return NotFound("No users found.");
         }
 
-        var userDtos = users.Select(user => new 
+        var userDtos = users.Select(async user => new
         {
             user.Id,
             user.UserName,
             user.Email,
-            user.LastLogin
+            user.LastLogin,
+            Roles = await _userManager.GetRolesAsync(user)
         });
 
         return Ok(userDtos);
@@ -185,15 +180,15 @@ public class UserController : ControllerBase
 
         var roles = _userManager.GetRolesAsync(user).Result;
 
-        List<Claim> claims = new List<Claim>
-        {
+        List<Claim> claims =
+        [
             new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Name, user.UserName ?? ""),
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
-            new Claim(JwtRegisteredClaimNames.Aud, 
+            new Claim(JwtRegisteredClaimNames.Aud,
                 _configuration.GetSection("JwtSettings").GetSection("ValidAudience").Value!),
             new Claim(JwtRegisteredClaimNames.Iss, _configuration.GetSection("JwtSettings").GetSection("ValidIssuer").Value!)
-        };
+        ];
 
         foreach (var role in roles)
         {
