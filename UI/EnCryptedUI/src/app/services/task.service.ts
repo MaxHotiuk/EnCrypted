@@ -1,4 +1,3 @@
-// task.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
@@ -14,8 +13,13 @@ export interface EncryptionJob {
   passPhrase: string;
 }
 
+export interface TaskCreateDto {
+  title: string;
+  description: string;
+}
+
 export interface LogicTaskCreateDto {
-  taskName: string;
+  taskId: string;
   allTextData: string;
   isEncrypted: boolean;
   passPhrase: string;
@@ -36,10 +40,18 @@ export class TaskService {
   private tokenKey = 'token';
   constructor(private http: HttpClient) { }
 
+  // Create a new task
+  createTask(data: TaskCreateDto): Observable<TaskResponse> {
+    return this.http.post<TaskResponse>(
+      `${this.baseUrl}Task/create`,
+      data
+    );
+  }
+
   // Create a new encryption task
   createEncryptTask(data: LogicTaskCreateDto): Observable<TaskResponse> {
     return this.http.post<TaskResponse>(
-      `${this.baseUrl}/Logic/createtasklogic`,
+      `${this.baseUrl}Logic/createtasklogic`,
       data
     );
   }
@@ -54,9 +66,8 @@ export class TaskService {
   // Encrypt or decrypt data for a specific task
   encryptOrDecryptTask(taskId: string): Observable<any> {
     return this.http.put(
-      `${this.baseUrl}Logic/dotask`,
-      null,
-      { params: { taskId } }
+      `${this.baseUrl}Logic/dotask/${taskId}`,
+      null
     );
   }
 

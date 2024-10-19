@@ -7,6 +7,7 @@ import { RoleGuard } from './guards/role.guard';
 import { UsersComponent } from './pages/users/users.component';
 import { EncryptComponent } from './pages/encrypt/encrypt.component';
 import { NonAuthGuard } from './guards/nonauth.guard.spec';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 export const routes: Routes = [
   {
@@ -34,6 +35,11 @@ export const routes: Routes = [
   {
     path: 'encrypt',
     component: EncryptComponent,
+    canActivate: [NonAuthGuard]
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
     canActivate: [NonAuthGuard]
   }
 ];

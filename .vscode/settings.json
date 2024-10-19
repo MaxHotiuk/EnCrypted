@@ -1,3 +1,4 @@
 {
-    "dotnet.defaultSolution": "EnCryptedAPI.sln"
+    "dotnet.defaultSolution": "EnCryptedAPI.sln",
+    "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }

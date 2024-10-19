@@ -16,7 +16,7 @@ using EnCryptedAPI.Logic;
 namespace EnCryptedAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class LogicController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
@@ -74,7 +74,7 @@ public class LogicController : ControllerBase
         return Ok(jobs);
     }
 
-    [HttpPut("dotask")]
+    [HttpPut("dotask/{taskId}")]
     [Authorize]
     public async Task<IActionResult> EncryptOrDecryptData(Guid taskId)
     {
