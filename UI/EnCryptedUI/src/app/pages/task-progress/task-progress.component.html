@@ -1,0 +1,27 @@
+<div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-2xl font-bold mb-6">Encryption/Decryption Task Progress</h2>
+
+      <div *ngIf="isProcessing">
+        <p class="text-sm font-medium text-gray-700">Task Progress</p>
+        <mat-progress-bar
+          mode="determinate"
+          [value]="progress"
+          class="h-2 rounded-full"
+        ></mat-progress-bar>
+        <p class="text-sm text-gray-500 text-right">{{progress}}%</p>
+      </div>
+
+      <div *ngIf="!isProcessing && result" class="mt-6 p-4 bg-gray-50 rounded-lg">
+        <h3 class="text-lg font-medium mb-2">Encryption Result</h3>
+        <pre class="whitespace-pre-wrap break-words text-sm">{{result}}</pre>
+      </div>
+
+      <div *ngIf="error" class="mt-6 p-4 bg-red-100 rounded-lg">
+        <h3 class="text-lg font-medium text-red-600 mb-2">Error</h3>
+        <pre class="whitespace-pre-wrap break-words text-sm">{{error}}</pre>
+      </div>
+    </div>
+  </div>
+</div>

@@ -35,7 +35,7 @@ public class LogicController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         var words = request.AllTextData.Split(' ');
@@ -54,7 +54,7 @@ public class LogicController : ControllerBase
         }
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return Ok(new { message = "Task created successfully", taskID = request.TaskID });
     }
 
     [HttpGet("task/{taskId}")]
@@ -64,7 +64,7 @@ public class LogicController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         var jobs = await _context.EncryptionJobs
@@ -74,14 +74,14 @@ public class LogicController : ControllerBase
         return Ok(jobs);
     }
 
-    [HttpPut("dotask/{taskId}")]
+    [HttpGet("dotask/{taskId}")]
     [Authorize]
     public async Task<IActionResult> EncryptOrDecryptData(Guid taskId)
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         var task = await _context.Tasks
@@ -90,12 +90,12 @@ public class LogicController : ControllerBase
 
         if (task == null)
         {
-            return NotFound();
+            return NotFound(new { message = "Task not found" });
         }
 
         if (task.UserID != user.Id)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         var request = new EncryptDataDto
@@ -109,7 +109,7 @@ public class LogicController : ControllerBase
 
         task.IsCompleted = true;
 
-        return Ok();
+        return Ok(new { message = "Task did successfully", taskID = request.TaskID });
     }
 
     [HttpGet("task/{taskId}/progress")]
@@ -119,7 +119,7 @@ public class LogicController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         var task = await _context.Tasks
@@ -128,12 +128,12 @@ public class LogicController : ControllerBase
 
         if (task == null)
         {
-            return NotFound();
+            return NotFound(new { message = "Task not found" });
         }
 
         if (task.UserID != user.Id)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         return Ok(task.Progress);

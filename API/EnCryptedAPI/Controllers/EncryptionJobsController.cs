@@ -15,7 +15,7 @@ using EnCryptedAPI.Encryption;
 namespace EnCryptedAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class EncryptionJobsController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
