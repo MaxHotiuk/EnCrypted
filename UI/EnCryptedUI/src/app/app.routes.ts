@@ -9,6 +9,7 @@ import { EncryptComponent } from './pages/encrypt/encrypt.component';
 import { NonAuthGuard } from './guards/nonauth.guard.spec';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { TaskProgressComponent } from './pages/task-progress/task-progress.component';
+import { TaskListComponent } from './pages/task-list/task-list.component';
 
 export const routes: Routes = [
   {
@@ -46,6 +47,11 @@ export const routes: Routes = [
   {
     path: 'task-progress/:taskID',
     component: TaskProgressComponent,
+    canActivate: [NonAuthGuard]
+  },
+  {
+    path: 'task-list',
+    component: TaskListComponent,
     canActivate: [NonAuthGuard]
   }
 ];

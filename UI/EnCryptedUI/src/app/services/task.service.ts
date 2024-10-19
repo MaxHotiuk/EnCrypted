@@ -37,6 +37,20 @@ export interface TaskResponse {
   progress: number;
 }
 
+export interface Task {
+  taskID: string;
+  taskName: string;
+  description: string;
+  createdAt: string;
+  isCompleted: boolean;
+  progress: number;
+}
+
+export interface Tasks {
+  $values: Task[];
+  length: number;
+}
+
 export interface EncryptionJobResponse {
   $values: EncryptionJob[];
 }
@@ -68,7 +82,7 @@ export class TaskService {
     ).pipe(
         map(response => response.$values) // Extract the $values array
     );
-}
+  }
 
 
   public encryptOrDecryptTask(taskID: string): Observable<TaskStartDto> {
@@ -85,5 +99,17 @@ export class TaskService {
         return of(0);
       })
     );
+  }
+
+  getTasks(): Observable<Tasks> {
+    return this.http.get<Tasks>(`${this.baseUrl}Task`);
+  }
+
+  getTask(taskId: string): Observable<Task> {
+    return this.http.get<Task>(`${this.baseUrl}Task/${taskId}`);
+  }
+
+  public cancelTask(taskID: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}Logic/cancel/${taskID}`, {});
   }
 }

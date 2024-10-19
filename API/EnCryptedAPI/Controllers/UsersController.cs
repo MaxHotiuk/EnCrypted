@@ -38,8 +38,7 @@ public class UserController(EnCryptedDbContext context, UserManager<User> userMa
             CreatedAt = DateTime.UtcNow,
             LastLogin = null,
             Tasks = [],
-            EncryptionJobs = [],
-            TaskHistories = []
+            EncryptionJobs = []
         };
 
         var result = await _userManager.CreateAsync(user);

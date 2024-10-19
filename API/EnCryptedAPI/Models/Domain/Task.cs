@@ -39,5 +39,4 @@ public class Task
     public int Progress { get; set; } = 0;
 
     public virtual ICollection<EncryptionJob> EncryptionJobs { get; set; } = [];
-    public virtual ICollection<TaskHistory> TaskHistories { get; set; } = [];
 }

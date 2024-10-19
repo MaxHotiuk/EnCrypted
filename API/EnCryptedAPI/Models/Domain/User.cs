@@ -27,12 +27,10 @@ public class User : IdentityUser<Guid>
 
     public virtual ICollection<Task> Tasks { get; set; }
     public virtual ICollection<EncryptionJob> EncryptionJobs { get; set; }
-    public virtual ICollection<TaskHistory> TaskHistories { get; set; }
 
     public User()
     {
         Tasks = new HashSet<Task>();
         EncryptionJobs = new HashSet<EncryptionJob>();
-        TaskHistories = new HashSet<TaskHistory>();
     }
 }
