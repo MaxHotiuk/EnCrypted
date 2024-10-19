@@ -1,17 +1,16 @@
-// encrypt.component.ts
-import { Component, OnInit, OnDestroy, Inject, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TaskService, LogicTaskCreateDto, TaskCreateDto, TaskStartDto } from '../../services/task.service';
-import { Subject, interval } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-encrypt',
@@ -37,6 +36,7 @@ export class EncryptComponent implements OnInit, OnDestroy {
   error: string | null = null;
   router = inject(Router);
   private destroy$ = new Subject<void>();
+  private snackBar = inject(MatSnackBar);
 
   constructor(
     private fb: FormBuilder,
@@ -46,7 +46,7 @@ export class EncryptComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.form = this.fb.group({
       jobName: ['', Validators.required],
-      text: ['', Validators.required],
+      text: ['', [Validators.required, this.maxLengthValidator(10000)]],
       passPhrase: ['', Validators.required],
       operation: ['encrypt', Validators.required],
       description: ['', Validators.required]
@@ -56,6 +56,16 @@ export class EncryptComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  maxLengthValidator(max: number) {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value as string;
+      if (value && value.length > max) {
+        return { 'maxLength': { requiredLength: max, actualLength: value.length } };
+      }
+      return null;
+    };
   }
 
   async submitForm() {
@@ -73,7 +83,20 @@ export class EncryptComponent implements OnInit, OnDestroy {
           isEncrypted: this.form.value.operation !== 'encrypt',
           passPhrase: this.form.value.passPhrase
         };
-
+        const tasksInProgress = await this.taskService.getTasks().toPromise().then((tasks) => {
+          if (tasks && tasks.$values) {
+            return tasks.$values.filter((task) => !task.isCompleted).length;
+          }
+          return 0;
+        });
+        if (tasksInProgress >= 5) {
+          this.snackBar.open('Maximum number of tasks in progress. Please wait for some tasks to complete.', 'Close', {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'top'
+          });
+          throw new Error('Maximum number of tasks in progress');
+        }
         const encryptTaskResponse = await this.taskService.createEncryptTask(taskData).toPromise();
         if (encryptTaskResponse) {
           console.log('Task created:', encryptTaskResponse);
@@ -86,7 +109,6 @@ export class EncryptComponent implements OnInit, OnDestroy {
                 console.error('Error during task initiation:', err);
             }
         });
-          //this.monitorProgress(encryptTaskResponse.taskID);
         } else {
           throw new Error('Invalid response from server');
         }
