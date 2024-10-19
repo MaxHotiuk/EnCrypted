@@ -29,7 +29,7 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("https://localhost:4200")
+        builder => builder.WithOrigins("https://localhost:5195", "https://localhost:4200")
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
@@ -60,7 +60,7 @@ builder.Services.AddControllers()
 .AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-    options.JsonSerializerOptions.WriteIndented = true; // Optional, for pretty-printing
+    options.JsonSerializerOptions.WriteIndented = true;
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen( c => 

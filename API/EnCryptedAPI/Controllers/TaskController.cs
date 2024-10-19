@@ -183,5 +183,32 @@ namespace EnCryptedAPI.Controllers
 
             return NoContent();
         }
+
+        // DELETE: api/Task/delete
+        [HttpDelete("delete")]
+        [Authorize]
+        public async Task<IActionResult> DeleteAllTasks()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User not authorized.");
+            }
+
+            var tasks = await _context.Tasks
+                .Where(t => t.UserID.ToString() == userId)
+                .ToListAsync();
+
+            if (!tasks.Any())
+            {
+                return NotFound("No tasks found for this user.");
+            }
+
+            _context.Tasks.RemoveRange(tasks);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

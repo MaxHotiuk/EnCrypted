@@ -15,7 +15,7 @@ using EnCryptedAPI.Encryption;
 namespace EnCryptedAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class EncryptionJobsController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
@@ -62,9 +62,18 @@ public class EncryptionJobsController : ControllerBase
             return Unauthorized();
         }
 
-        var jobs = await _context.EncryptionJobs.Where(j => j.TaskID == taskId && j.UserID == user.Id).ToListAsync();
+        var jobs = await _context.EncryptionJobs
+            .Where(j => j.TaskID == taskId && j.UserID == user.Id)
+            .Select(job => new EncryptionJobGetDto // Adjust this to your actual DTO
+            {
+                JobID = job.JobID,
+                EncryptedData = job.EncryptedData ?? string.Empty
+            })
+            .ToListAsync();
+
         return Ok(jobs);
     }
+
 
     [HttpGet("job/{jobId}")]
     [Authorize]

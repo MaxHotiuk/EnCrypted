@@ -1,8 +1,7 @@
-// task.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
-import { Observable } from 'rxjs';
+import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 
 export interface EncryptionJob {
   id: string;
@@ -14,8 +13,18 @@ export interface EncryptionJob {
   passPhrase: string;
 }
 
+export interface TaskStartDto {
+  message: string;
+  taskID: string;
+}
+
+export interface TaskCreateDto {
+  title: string;
+  description: string;
+}
+
 export interface LogicTaskCreateDto {
-  taskName: string;
+  taskID: string;
   allTextData: string;
   isEncrypted: boolean;
   passPhrase: string;
@@ -28,42 +37,79 @@ export interface TaskResponse {
   progress: number;
 }
 
+export interface Task {
+  taskID: string;
+  taskName: string;
+  description: string;
+  createdAt: string;
+  isCompleted: boolean;
+  progress: number;
+}
+
+export interface Tasks {
+  $values: Task[];
+  length: number;
+}
+
+export interface EncryptionJobResponse {
+  $values: EncryptionJob[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
   baseUrl: string = environment.apiBaseUrl;
-  private tokenKey = 'token';
   constructor(private http: HttpClient) { }
 
-  // Create a new encryption task
-  createEncryptTask(data: LogicTaskCreateDto): Observable<TaskResponse> {
+  createTask(data: TaskCreateDto): Observable<TaskResponse> {
     return this.http.post<TaskResponse>(
-      `${this.baseUrl}/Logic/createtasklogic`,
+      `${this.baseUrl}Task/create`,
       data
     );
   }
 
-  // Get all encryption jobs for a specific task
+  createEncryptTask(data: LogicTaskCreateDto): Observable<TaskResponse> {
+    return this.http.post<TaskResponse>(
+      `${this.baseUrl}Logic/createtasklogic`,
+      data
+    );
+  }
+
   getEncryptionJobs(taskId: string): Observable<EncryptionJob[]> {
-    return this.http.get<EncryptionJob[]>(
-      `${this.baseUrl}Logic/task/${taskId}`
+    return this.http.get<EncryptionJobResponse>(
+        `${this.baseUrl}EncryptionJobs/task/${taskId}`
+    ).pipe(
+        map(response => response.$values) // Extract the $values array
     );
   }
 
-  // Encrypt or decrypt data for a specific task
-  encryptOrDecryptTask(taskId: string): Observable<any> {
-    return this.http.put(
-      `${this.baseUrl}Logic/dotask`,
-      null,
-      { params: { taskId } }
-    );
+
+  public encryptOrDecryptTask(taskID: string): Observable<TaskStartDto> {
+    console.log('Initiating task with ID:', taskID);  // Log the task initiation
+    return this.http.get<TaskStartDto>(`${this.baseUrl}Logic/dotask/${taskID}`);
   }
 
-  // Get task progress
   getTaskProgress(taskId: string): Observable<number> {
     return this.http.get<number>(
       `${this.baseUrl}Logic/task/${taskId}/progress`
+    ).pipe(
+      catchError((error) => {
+        console.error('Error fetching task progress:', error);
+        return of(0);
+      })
     );
+  }
+
+  getTasks(): Observable<Tasks> {
+    return this.http.get<Tasks>(`${this.baseUrl}Task`);
+  }
+
+  getTask(taskId: string): Observable<Task> {
+    return this.http.get<Task>(`${this.baseUrl}Task/${taskId}`);
+  }
+
+  public cancelTask(taskID: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}Logic/cancel/${taskID}`, {});
   }
 }

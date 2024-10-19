@@ -101,35 +101,6 @@ namespace EnCryptedAPI.Migrations
                     b.ToTable("Tasks", (string)null);
                 });
 
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.TaskHistory", b =>
-                {
-                    b.Property<Guid>("HistoryID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("HistoryID");
-
-                    b.HasIndex("TaskID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("TaskHistory", (string)null);
-                });
-
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -202,31 +173,6 @@ namespace EnCryptedAPI.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.UserStatistic", b =>
-                {
-                    b.Property<Guid>("StatsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("TotalTasksCompleted")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalTimeTracked")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("StatsId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Statistics", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -389,36 +335,6 @@ namespace EnCryptedAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.TaskHistory", b =>
-                {
-                    b.HasOne("EnCryptedAPI.Models.Domain.Task", "Task")
-                        .WithMany("TaskHistories")
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EnCryptedAPI.Models.Domain.User", "User")
-                        .WithMany("TaskHistories")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.UserStatistic", b =>
-                {
-                    b.HasOne("EnCryptedAPI.Models.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -473,15 +389,11 @@ namespace EnCryptedAPI.Migrations
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.Task", b =>
                 {
                     b.Navigation("EncryptionJobs");
-
-                    b.Navigation("TaskHistories");
                 });
 
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.User", b =>
                 {
                     b.Navigation("EncryptionJobs");
-
-                    b.Navigation("TaskHistories");
 
                     b.Navigation("Tasks");
                 });

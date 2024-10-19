@@ -12,15 +12,17 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using EnCryptedAPI.Encryption;
 using EnCryptedAPI.Logic;
+using System.Collections.Concurrent;
 
 namespace EnCryptedAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class LogicController : ControllerBase
 {
     private readonly UserManager<User> _userManager;
     private readonly EnCryptedDbContext _context;
+    private static readonly ConcurrentDictionary<Guid, CancellationTokenSource> _taskCancellationTokens = new();
 
     public LogicController(UserManager<User> userManager, EnCryptedDbContext context)
     {
@@ -35,7 +37,7 @@ public class LogicController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         var words = request.AllTextData.Split(' ');
@@ -54,8 +56,9 @@ public class LogicController : ControllerBase
         }
         await _context.SaveChangesAsync();
 
-        return Ok();
+        return Ok(new { message = "Task created successfully", taskID = request.TaskID });
     }
+
 
     [HttpGet("task/{taskId}")]
     [Authorize]
@@ -64,7 +67,7 @@ public class LogicController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         var jobs = await _context.EncryptionJobs
@@ -74,14 +77,14 @@ public class LogicController : ControllerBase
         return Ok(jobs);
     }
 
-    [HttpPut("dotask")]
+    [HttpGet("task/{taskId}/progress")]
     [Authorize]
-    public async Task<IActionResult> EncryptOrDecryptData(Guid taskId)
+    public async Task<IActionResult> GetTaskProgress(Guid taskId)
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
         var task = await _context.Tasks
@@ -90,13 +93,53 @@ public class LogicController : ControllerBase
 
         if (task == null)
         {
-            return NotFound();
+            return NotFound(new { message = "Task not found" });
         }
 
         if (task.UserID != user.Id)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
+
+        return Ok(task.Progress);
+    }
+
+    [HttpGet("dotask/{taskId}")]
+    [Authorize]
+    public async Task<IActionResult> EncryptOrDecryptData(Guid taskId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return Unauthorized(new { message = "User not found or unauthorized" });
+        }
+
+        var task = await _context.Tasks
+            .Include(t => t.EncryptionJobs)
+            .FirstOrDefaultAsync(t => t.TaskID == taskId);
+
+        if (task == null)
+        {
+            return NotFound(new { message = "Task not found" });
+        }
+
+        if (task.UserID != user.Id)
+        {
+            return Unauthorized(new { message = "User not authorized for this task" });
+        }
+
+        if (task.IsCompleted)
+        {
+            return Ok(new { message = "Task already completed", taskID = taskId });
+        }
+
+        if (_taskCancellationTokens.TryGetValue(taskId, out _))
+        {
+            return BadRequest(new { message = "Task is already running" });
+        }
+
+        var cts = new CancellationTokenSource();
+        _taskCancellationTokens[taskId] = cts;
 
         var request = new EncryptDataDto
         {
@@ -105,37 +148,81 @@ public class LogicController : ControllerBase
             PassPhrase = task.EncryptionJobs.FirstOrDefault()?.PassPhrase ?? string.Empty
         };
 
-        await EncryptionLogic.EncryptOrDecryptData(request, _context);
+        try
+        {
+            await EncryptionLogic.EncryptOrDecryptData(request, _context, cts.Token);
+            task.IsCompleted = true;
+            await _context.SaveChangesAsync();
+        }
+        catch (OperationCanceledException)
+        {
+            return BadRequest(new { message = "Task was canceled" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while processing the task", error = ex.Message });
+        }
+        finally
+        {
+            _taskCancellationTokens.TryRemove(taskId, out _);
+        }
 
-        task.IsCompleted = true;
-
-        return Ok();
+        return Ok(new { message = "Task completed successfully", taskID = request.TaskID });
     }
 
-    [HttpGet("task/{taskId}/progress")]
+    [HttpPost("cancel/{taskId}")]
     [Authorize]
-    public async Task<IActionResult> GetTaskProgress(Guid taskId)
+    public async Task<IActionResult> CancelTask(Guid taskId)
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null)
         {
-            return Unauthorized();
+            return Unauthorized(new { message = "User not found or unauthorized" });
         }
 
-        var task = await _context.Tasks
-            .Include(t => t.EncryptionJobs)
-            .FirstOrDefaultAsync(t => t.TaskID == taskId);
-
-        if (task == null)
+        var task = await _context.Tasks.FirstOrDefaultAsync(t => t.TaskID == taskId);
+        if (task == null || task.UserID != user.Id)
         {
-            return NotFound();
+            return NotFound(new { message = "Task not found or not authorized" });
         }
 
-        if (task.UserID != user.Id)
+        if (task.IsCompleted)
         {
-            return Unauthorized();
+            return BadRequest(new { message = "Task is already completed" });
         }
 
-        return Ok(task.Progress);
+        if (_taskCancellationTokens.TryRemove(taskId, out var tokenSource))
+        {
+            tokenSource.Cancel();
+            task.Progress = -1;
+            task.IsCompleted = true;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Task cancelled successfully" });
+        }
+
+        return BadRequest(new { message = "Task is not currently running" });
     }
+
+    [HttpGet("task/{taskId}/status")]
+    [Authorize]
+    public async Task<IActionResult> GetTaskStatus(Guid taskId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return Unauthorized(new { message = "User not found or unauthorized" });
+        }
+
+        var task = await _context.Tasks.FirstOrDefaultAsync(t => t.TaskID == taskId);
+        if (task == null || task.UserID != user.Id)
+        {
+            return NotFound(new { message = "Task not found or not authorized" });
+        }
+
+        var status = task.IsCompleted ? "Completed" :
+                     _taskCancellationTokens.ContainsKey(taskId) ? "Running" : "Pending";
+
+        return Ok(new { taskId = task.TaskID, status, progress = task.Progress });
+    }
+
 }

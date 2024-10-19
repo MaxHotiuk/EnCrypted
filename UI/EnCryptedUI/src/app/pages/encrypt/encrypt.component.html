@@ -11,6 +11,18 @@
             Title is required
           </mat-error>
         </mat-form-field>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Description</mat-label>
+          <textarea
+            matInput
+            formControlName="description"
+            placeholder="Enter task description"
+            rows="3"
+          ></textarea>
+          <mat-error *ngIf="form.get('description')?.hasError('required')">
+            Description is required
+          </mat-error>
+        </mat-form-field>
 
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Text Content</mat-label>
