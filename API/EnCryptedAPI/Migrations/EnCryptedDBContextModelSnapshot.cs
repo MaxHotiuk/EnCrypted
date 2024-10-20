@@ -22,6 +22,28 @@ namespace EnCryptedAPI.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("EnCryptedAPI.Models.Domain.CancellationToken", b =>
+                {
+                    b.Property<Guid>("CancellationTokenID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsCanceled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("TaskID")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("CancellationTokenID");
+
+                    b.HasIndex("TaskID");
+
+                    b.ToTable("CancelationTokens", (string)null);
+                });
+
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.EncryptionJob", b =>
                 {
                     b.Property<Guid>("JobID")
@@ -303,6 +325,17 @@ namespace EnCryptedAPI.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("EnCryptedAPI.Models.Domain.CancellationToken", b =>
+                {
+                    b.HasOne("EnCryptedAPI.Models.Domain.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.EncryptionJob", b =>
