@@ -4,6 +4,7 @@ using EnCryptedAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EnCryptedAPI.Migrations
 {
     [DbContext(typeof(EnCryptedDbContext))]
-    partial class EnCryptedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241019223124_CanTok")]
+    partial class CanTok
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,22 +25,16 @@ namespace EnCryptedAPI.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.CancellationToken", b =>
+            modelBuilder.Entity("EnCryptedAPI.Models.Domain.CancelationToken", b =>
                 {
-                    b.Property<Guid>("CancellationTokenID")
+                    b.Property<Guid>("CancelationTokenID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsCanceled")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid>("TaskID")
                         .HasColumnType("char(36)");
 
-                    b.HasKey("CancellationTokenID");
+                    b.HasKey("CancelationTokenID");
 
                     b.HasIndex("TaskID");
 
@@ -327,7 +324,7 @@ namespace EnCryptedAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.CancellationToken", b =>
+            modelBuilder.Entity("EnCryptedAPI.Models.Domain.CancelationToken", b =>
                 {
                     b.HasOne("EnCryptedAPI.Models.Domain.Task", "Task")
                         .WithMany()

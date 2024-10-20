@@ -1,25 +1,23 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 
-namespace EnCryptedAPI.Models.Domain;
-
-[Table("CancelationTokens")]
-public class CancelationToken
+namespace EnCryptedAPI.Models.Domain
 {
-    [Key]
-    public Guid TokenID { get; set; }
+    public class CancellationToken
+    {
+        [Key]
+        public Guid CancellationTokenID { get; set; }
 
-    [Required]
-    public Guid TaskID { get; set; }
+        [Required]
+        public Guid TaskID { get; set; }
 
-    [ForeignKey("TaskID")]
-    public virtual Task Task { get; set; } = null!;
+        [ForeignKey("TaskID")]
+        public virtual Task Task { get; set; } = null!;
 
-    [Required]
-    public CancellationTokenSource CancellationTokenSource { get; set; } = null!;
+        [Required]
+        public bool IsCanceled { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }
