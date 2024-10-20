@@ -3,17 +3,23 @@
   <table class="w-full rounded-md">
       <thead>
           <tr class="bg-gray-200">
-              <th class="py-4 border py-2">Login</th>
-              <th class="py-4 border py-2">Email</th>
-              <th class="py-4 border py-2">Role</th>
+              <th class="py-4 border py-2 text-center">Login</th>
+              <th class="py-4 border py-2 text-center">Email</th>
+              <th class="py-4 border py-2 text-center">Role</th>
+              <th class="py-4 border py-2 text-center">Last Login</th>
+              <th class="py-4 border py-2 text-center">Total Number of Tasks</th>
+              <th class="py-4 border py-2 text-center">Number of Tasks Running</th>
           </tr>
       </thead>
       <tbody>
           @for (user of users$ | async; track user.result.id) {
               <tr>
-                  <td class="py-4 border py-2">{{user.result.userName}}</td>
-                  <td class="py-4 border py-2">{{user.result.email}}</td>
-                  <td class="py-4 border py-2">{{user.result.roles.$values.join(" , ")}}</td>
+                  <td class="py-4 border py-2 text-center">{{user.result.userName}}</td>
+                  <td class="py-4 border py-2 text-center">{{user.result.email}}</td>
+                  <td class="py-4 border py-2 text-center">{{user.result.roles.$values.join(" , ")}}</td>
+                  <td class="py-4 border py-2 text-center">{{user.result.lastLogin}}</td>
+                  <td class="py-4 border py-2 text-center">{{user.result.totalNumberOfTasks}}</td>
+                  <td class="py-4 border py-2 text-center">{{user.result.numberOfTasksRunning}}</td>
               </tr>
           } @empty {
               <tr>

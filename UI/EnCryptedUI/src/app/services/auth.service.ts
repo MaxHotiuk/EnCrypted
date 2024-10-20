@@ -7,6 +7,7 @@ import { map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { UserDetail } from '../interfaces/user-detail';
+import { UpdatePasswordRequest } from '../interfaces/update-password-request';
 
 @Injectable({
   providedIn: 'root'
@@ -109,4 +110,15 @@ export class AuthService {
     const decodedToken:any = jwtDecode(token);
     return decodedToken.role || null;
   }
+
+  updatePassword(data: UpdatePasswordRequest): Observable<void> {
+    return this.http
+      .put<void>(`${this.apiBaseUrl}User/updatepassword`, data)
+      .pipe(
+        map(() => {
+          console.log('Password updated successfully');
+        })
+      );
+  }
+
 }

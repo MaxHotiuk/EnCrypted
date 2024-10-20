@@ -85,6 +85,35 @@ public class UserController(EnCryptedDbContext context, UserManager<User> userMa
         });
     }
 
+    [HttpPut("updatepassword")]
+    [Authorize]
+    public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto updatePasswordDto)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(currentUserId))
+        {
+            return Unauthorized("User ID not found.");
+        }
+
+        var user = await _userManager.FindByIdAsync(currentUserId);
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(updatePasswordDto.CurrentPassword, user.PasswordHash))
+        {
+            return BadRequest("Current password is incorrect.");
+        }
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(updatePasswordDto.NewPassword);
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
+    }
+
     [HttpGet("{id}")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> GetUser(Guid id)
@@ -133,7 +162,7 @@ public class UserController(EnCryptedDbContext context, UserManager<User> userMa
     {
         var users = await _userManager.Users.ToListAsync();
 
-        if (!users.Any())
+        if (users.Count == 0)
         {
             return NotFound("No users found.");
         }
@@ -144,7 +173,9 @@ public class UserController(EnCryptedDbContext context, UserManager<User> userMa
             user.UserName,
             user.Email,
             user.LastLogin,
-            Roles = await _userManager.GetRolesAsync(user)
+            Roles = await _userManager.GetRolesAsync(user),
+            TotalNumberOfTasks = await _context.Tasks.CountAsync(t => t.UserID == user.Id),
+            NumberOfTasksRunning = await _context.Tasks.CountAsync(t => t.UserID == user.Id && t.IsCompleted == false),
         });
 
         return Ok(userDtos);

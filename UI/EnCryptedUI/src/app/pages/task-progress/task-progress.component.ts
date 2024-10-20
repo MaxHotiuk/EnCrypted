@@ -25,6 +25,7 @@ export class TaskProgressComponent implements OnInit {
   result: string = '';
   destroy$ = new Subject<void>();
   error: string = '';
+  message: string = '';
   taskData: Task | undefined;
   isCancelled: boolean = false;
 
@@ -72,19 +73,18 @@ export class TaskProgressComponent implements OnInit {
         } else {
           this.error = 'No encryption jobs found for the task';
         }
-        this.destroy$.next(); // Stop monitoring progress
+        this.destroy$.next();
       },
       error => {
         console.error('Error fetching encryption jobs:', error);
         this.isProcessing = false;
         this.error = 'Failed to retrieve encryption jobs.';
-        this.destroy$.next(); // Stop monitoring progress
+        this.destroy$.next();
       }
     );
   }
 
   cancelTask(): void {
-    // Call the cancel task API endpoint
     this.taskService.cancelTask(this.taskID!).subscribe(
       response => {
         console.log('Task cancellation response:', response);

@@ -11,6 +11,7 @@ import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-encrypt',
@@ -34,9 +35,11 @@ export class EncryptComponent implements OnInit, OnDestroy {
   currentTaskId: string | null = null;
   isProcessing: boolean = false;
   error: string | null = null;
+  userRoles: string[] | null = null;
   router = inject(Router);
   private destroy$ = new Subject<void>();
   private snackBar = inject(MatSnackBar);
+  private authService = inject(AuthService);
 
   constructor(
     private fb: FormBuilder,
@@ -51,6 +54,7 @@ export class EncryptComponent implements OnInit, OnDestroy {
       operation: ['encrypt', Validators.required],
       description: ['', Validators.required]
     });
+    this.userRoles = this.authService.getUserRoles();
   }
 
   ngOnDestroy(): void {
@@ -89,7 +93,7 @@ export class EncryptComponent implements OnInit, OnDestroy {
           }
           return 0;
         });
-        if (tasksInProgress >= 5) {
+        if (tasksInProgress >= 5 && !(this.userRoles?.includes('admin') && tasksInProgress <= 10)) {
           this.snackBar.open('Maximum number of tasks in progress. Please wait for some tasks to complete.', 'Close', {
             duration: 5000,
             horizontalPosition: 'center',
