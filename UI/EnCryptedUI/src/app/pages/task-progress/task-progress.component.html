@@ -14,7 +14,7 @@
         <p class="text-sm text-gray-500">{{taskData?.createdAt}}</p>
       </div>
 
-      <div *ngIf="progress != -1">
+      <div *ngIf="progress != -1 && progress != 100">
         <p class="text-sm font-medium text-gray-700">Task Progress</p>
         <mat-progress-bar mode="determinate" [value]="progress" class="h-2 rounded-full"></mat-progress-bar>
         <p class="text-sm text-gray-500 text-right">{{progress}}%</p>
@@ -31,8 +31,7 @@
         <h3 class="text-lg font-medium text-red-600 mb-2">Task Cancelled</h3>
         <p class="text-sm text-gray-500">The task has been cancelled.</p>
       </div>
-
-      <div *ngIf="error" class="mt-6 p-4 bg-red-100 rounded-lg">
+      <div *ngIf="error && error != 'Task was successfully canceled.'" class="mt-6 p-4 bg-red-100 rounded-lg">
         <h3 class="text-lg font-medium text-red-600 mb-2">Error</h3>
         <pre class="whitespace-pre-wrap break-words text-sm">{{error}}</pre>
       </div>

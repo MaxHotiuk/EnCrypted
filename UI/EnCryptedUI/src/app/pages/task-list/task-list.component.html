@@ -60,6 +60,11 @@
       <tr *ngIf="tasks.$values.length === 0">
         <td colspan="6" class="py-4 px-4 border text-center">No tasks found</td>
       </tr>
+      <tr>
+        <td colspan="6" class="py-4 px-4 border text-center">
+          <a [routerLink]="['/encrypt']" class="text-blue-500 hover:underline">Create Task</a>
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>

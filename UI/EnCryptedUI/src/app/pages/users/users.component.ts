@@ -9,13 +9,21 @@ import { UserDetail } from '../../interfaces/user-detail';
   standalone: true,
   imports: [AsyncPipe, NgFor, NgIf],
   templateUrl: './users.component.html',
-  styleUrl: './users.component.css'
+  styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
   private authService = inject(AuthService);
   users$!: Observable<UserDetail[]>;
 
   ngOnInit() {
+    this.loadUsers();
+
+    setInterval(() => {
+      this.loadUsers();
+    }, 10000);
+  }
+
+  private loadUsers() {
     this.users$ = this.authService.getAllUsers();
   }
 }
