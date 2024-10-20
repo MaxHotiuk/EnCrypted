@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OTCBcgIDbIM=",
+  "dgSpecHash": "Dl9wWpkVYRk=",
   "success": true,
-  "projectFilePath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/API/EnCryptedAPI/EnCryptedAPI.csproj",
+  "projectFilePath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/API/EnCryptedAPI/EnCryptedAPI.csproj",
   "expectedPackageFiles": [
     "/Users/maxhotiuk/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/Users/maxhotiuk/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",

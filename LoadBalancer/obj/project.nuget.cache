@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "81rvEbpwuw4=",
+  "dgSpecHash": "tECF/RsZAcA=",
   "success": true,
-  "projectFilePath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/LoadBalancer/LoadBalancer.csproj",
+  "projectFilePath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/LoadBalancer.csproj",
   "expectedPackageFiles": [
     "/Users/maxhotiuk/.nuget/packages/microsoft.aspnetcore.openapi/8.0.6/microsoft.aspnetcore.openapi.8.0.6.nupkg.sha512",
     "/Users/maxhotiuk/.nuget/packages/microsoft.extensions.apidescription.server/6.0.5/microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/maxhotiuk/Desktop/5sem/EnCrypted/LoadBalancer/LoadBalancer.csproj": {}
+    "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/LoadBalancer.csproj": {}
   },
   "projects": {
-    "/Users/maxhotiuk/Desktop/5sem/EnCrypted/LoadBalancer/LoadBalancer.csproj": {
+    "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/LoadBalancer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/LoadBalancer/LoadBalancer.csproj",
+        "projectUniqueName": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/LoadBalancer.csproj",
         "projectName": "LoadBalancer",
-        "projectPath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/LoadBalancer/LoadBalancer.csproj",
+        "projectPath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/LoadBalancer.csproj",
         "packagesPath": "/Users/maxhotiuk/.nuget/packages/",
-        "outputPath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/LoadBalancer/obj/",
+        "outputPath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/maxhotiuk/.nuget/NuGet/NuGet.Config"

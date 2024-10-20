@@ -3666,11 +3666,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/API/EnCryptedAPI/EnCryptedAPI.csproj",
+      "projectUniqueName": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/API/EnCryptedAPI/EnCryptedAPI.csproj",
       "projectName": "EnCryptedAPI",
-      "projectPath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/API/EnCryptedAPI/EnCryptedAPI.csproj",
+      "projectPath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/API/EnCryptedAPI/EnCryptedAPI.csproj",
       "packagesPath": "/Users/maxhotiuk/.nuget/packages/",
-      "outputPath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/API/EnCryptedAPI/obj/",
+      "outputPath": "/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/API/EnCryptedAPI/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/maxhotiuk/.nuget/NuGet/NuGet.Config"
