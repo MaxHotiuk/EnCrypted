@@ -103,6 +103,41 @@ namespace EnCryptedAPI.Controllers
             return Ok(taskDtos);
         }
 
+        //return all tasks for current user
+        // GET: api/Task
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetTasks()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User not authorized.");
+            }
+
+            var tasks = await _context.Tasks
+                .Where(t => t.UserID.ToString() == userId)
+                .ToListAsync();
+
+            if (!tasks.Any())
+            {
+                return NotFound("No tasks found for this user.");
+            }
+
+            var taskDtos = tasks.Select(task => new
+            {
+                task.TaskID,
+                task.TaskName,
+                task.Description,
+                task.CreatedAt,
+                task.IsCompleted,
+                task.Progress,
+            });
+
+            return Ok(taskDtos);
+        }
+
         // PUT: api/Task/update/{id}
         [HttpPut("update/{id}")]
         [Authorize]
@@ -144,6 +179,33 @@ namespace EnCryptedAPI.Controllers
             }
 
             _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // DELETE: api/Task/delete
+        [HttpDelete("delete")]
+        [Authorize]
+        public async Task<IActionResult> DeleteAllTasks()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User not authorized.");
+            }
+
+            var tasks = await _context.Tasks
+                .Where(t => t.UserID.ToString() == userId)
+                .ToListAsync();
+
+            if (!tasks.Any())
+            {
+                return NotFound("No tasks found for this user.");
+            }
+
+            _context.Tasks.RemoveRange(tasks);
             await _context.SaveChangesAsync();
 
             return NoContent();

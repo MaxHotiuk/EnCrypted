@@ -1,0 +1,70 @@
+<div class="mx-60 py-10">
+  <h1 class="text-3xl font-bold mb-6">All Tasks</h1>
+
+  <table class="w-full rounded-md border-collapse">
+    <thead>
+      <tr class="bg-gray-200">
+        <th class="py-4 px-4 border">Task Name</th>
+        <th class="py-4 px-4 border">Description</th>
+        <th class="py-4 px-4 border">Created At</th>
+        <th class="py-4 px-4 border">Progress</th>
+        <th class="py-4 px-4 border">Status</th>
+        <th class="py-4 px-4 border">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let task of tasks.$values">
+        <td class="py-4 px-4 border">{{task.taskName}}</td>
+        <td class="py-4 px-4 border">{{task.description}}</td>
+        <td class="py-4 px-4 border">{{task.createdAt}}</td>
+        <td class="py-4 px-4 border">
+          <div class="text-center">
+            <ng-container *ngIf="task.progress !== -1 && !task.isCompleted">
+              <mat-progress-bar
+                mode="determinate"
+                [value]="task.progress"
+                class="h-2 rounded-full"
+              ></mat-progress-bar>
+              <p class="text-sm text-right mt-1">{{task.progress}}%</p>
+            </ng-container>
+            <ng-container *ngIf="task.progress === -1">
+              <p class="text-sm text-center text-red-600">---</p>
+            </ng-container>
+            <ng-container *ngIf="task.isCompleted && task.progress !== -1">
+              <p class="text-sm text-center text-green-600">Completed</p>
+            </ng-container>
+          </div>
+        </td>
+        <td class="py-4 px-4 border">
+          <div class="text-center">
+            <span
+              class="px-2 py-1 rounded-full text-xs font-semibold"
+              [ngClass]="{
+                'bg-green-200 text-green-700': task.isCompleted,
+                'bg-yellow-200 text-yellow-700': !task.isCompleted && task.progress !== -1,
+                'bg-red-200 text-red-700': task.progress === -1
+              }"
+            >
+              {{ task.progress === -1 ? 'Cancelled' : (task.isCompleted ? 'Completed' : 'In Progress') }}
+            </span>
+          </div>
+        </td>
+        <td class="py-4 px-4 border">
+          <div class="text-center">
+            <a [routerLink]="['/task-progress', task.taskID]" class="text-blue-500 hover:underline">
+              View Task
+            </a>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="tasks.$values.length === 0">
+        <td colspan="6" class="py-4 px-4 border text-center">No tasks found</td>
+      </tr>
+      <tr>
+        <td colspan="6" class="py-4 px-4 border text-center">
+          <a [routerLink]="['/encrypt']" class="text-blue-500 hover:underline">Create Task</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -5,8 +5,9 @@ import { LoginRequest } from '../interfaces/login-request';
 import { RegisterRequest } from '../interfaces/register-request';
 import { map, Observable } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response';
-import { jwtDecode } from 'jwt-decode';
-import { UserDetail } from '../interfaces/user-detail'; // Add this line
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { UserDetail } from '../interfaces/user-detail';
+import { UpdatePasswordRequest } from '../interfaces/update-password-request';
 
 @Injectable({
   providedIn: 'root'
@@ -22,10 +23,8 @@ export class AuthService {
       .post<AuthResponse>(`${this.apiBaseUrl}User/login`, data)
       .pipe(
         map((response) => {
-          if (response.isSucces) {
-            localStorage.setItem(this.tokenKey, response.token);
-            return response;
-          }
+          localStorage.setItem(this.tokenKey, response.token);
+          console.log('Token stored:', response.token);
           return response;
         })
       );
@@ -36,9 +35,8 @@ export class AuthService {
       .post<AuthResponse>(`${this.apiBaseUrl}User/register`, data)
       .pipe(
         map((response) => {
-          if (response.isSucces) {
-            return response;
-          }
+          localStorage.setItem(this.tokenKey, response.token);
+          console.log('Token stored:', response.token);
           return response;
         })
       );
@@ -75,27 +73,34 @@ export class AuthService {
     localStorage.removeItem(this.tokenKey);
   }
 
-  private getToken(): string | null {
+  getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
   getUserDetails = () => {
     const token = this.getToken();
     if (!token) {
+      console.error('No token found');
       return null;
     }
-    const decodedToken: { name: string, email: string, role: string } = jwtDecode(token);
-    const userDetails = {
-      username: decodedToken.name,
-      email: decodedToken.email,
-      role: decodedToken.role || []
-    }
-    return userDetails;
+    const decodedToken: any = jwtDecode<{
+      nameid: string,
+      name: string,
+      email: string,
+      role: string
+    } & JwtPayload>(token);
+    return decodedToken;
   }
 
-  getAllUsers = () : Observable<UserDetail[]> => {
-    return this.http.get<UserDetail[]>(`${this.apiBaseUrl}User`);
+  getAllUsers = (): Observable<UserDetail[]> => {
+    return this.http.get<{ $id: string; $values: UserDetail[] }>(`${this.apiBaseUrl}User`).pipe(
+      map((response) => {
+        console.log('Users:', response.$values);
+        return response.$values;
+      })
+    );
   }
+
 
   getUserRoles = () : string[] | null => {
     const token = this.getToken();
@@ -105,4 +110,15 @@ export class AuthService {
     const decodedToken:any = jwtDecode(token);
     return decodedToken.role || null;
   }
+
+  updatePassword(data: UpdatePasswordRequest): Observable<void> {
+    return this.http
+      .put<void>(`${this.apiBaseUrl}User/updatepassword`, data)
+      .pipe(
+        map(() => {
+          console.log('Password updated successfully');
+        })
+      );
+  }
+
 }

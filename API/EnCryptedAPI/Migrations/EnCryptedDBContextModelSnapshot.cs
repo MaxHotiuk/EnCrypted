@@ -22,6 +22,28 @@ namespace EnCryptedAPI.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("EnCryptedAPI.Models.Domain.CancellationToken", b =>
+                {
+                    b.Property<Guid>("CancellationTokenID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsCanceled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("TaskID")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("CancellationTokenID");
+
+                    b.HasIndex("TaskID");
+
+                    b.ToTable("CancelationTokens", (string)null);
+                });
+
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.EncryptionJob", b =>
                 {
                     b.Property<Guid>("JobID")
@@ -40,6 +62,10 @@ namespace EnCryptedAPI.Migrations
                     b.Property<string>("EncryptedData")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("PassPhrase")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<Guid>("TaskID")
                         .HasColumnType("char(36)");
 
@@ -53,28 +79,6 @@ namespace EnCryptedAPI.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("EncryptionJobs", (string)null);
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.GeneralStatistic", b =>
-                {
-                    b.Property<Guid>("StatID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("ActionType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("StatID");
-
-                    b.ToTable("GeneralStatistics", (string)null);
                 });
 
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.Task", b =>
@@ -98,6 +102,9 @@ namespace EnCryptedAPI.Migrations
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("Progress")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime(6)");
 
@@ -114,59 +121,6 @@ namespace EnCryptedAPI.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("Tasks", (string)null);
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.TaskHistory", b =>
-                {
-                    b.Property<Guid>("HistoryID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<Guid>("TaskID")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("HistoryID");
-
-                    b.HasIndex("TaskID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("TaskHistory", (string)null);
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.UsageData", b =>
-                {
-                    b.Property<Guid>("DataID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("ActionType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("DataID");
-
-                    b.ToTable("UsageData", (string)null);
                 });
 
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.User", b =>
@@ -241,60 +195,6 @@ namespace EnCryptedAPI.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.UserSetting", b =>
-                {
-                    b.Property<Guid>("SettingID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<bool>("NotificationsEnabled")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("PreferredLanguage")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("Theme")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<Guid>("UserID")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("SettingID");
-
-                    b.HasIndex("UserID");
-
-                    b.ToTable("UserSettings", (string)null);
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.UserStatistic", b =>
-                {
-                    b.Property<Guid>("StatsId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("TotalTasksCompleted")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalTimeTracked")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("StatsId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Statistics", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -427,6 +327,17 @@ namespace EnCryptedAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("EnCryptedAPI.Models.Domain.CancellationToken", b =>
+                {
+                    b.HasOne("EnCryptedAPI.Models.Domain.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.EncryptionJob", b =>
                 {
                     b.HasOne("EnCryptedAPI.Models.Domain.Task", "Task")
@@ -451,47 +362,6 @@ namespace EnCryptedAPI.Migrations
                     b.HasOne("EnCryptedAPI.Models.Domain.User", "User")
                         .WithMany("Tasks")
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.TaskHistory", b =>
-                {
-                    b.HasOne("EnCryptedAPI.Models.Domain.Task", "Task")
-                        .WithMany("TaskHistories")
-                        .HasForeignKey("TaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EnCryptedAPI.Models.Domain.User", "User")
-                        .WithMany("TaskHistories")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.UserSetting", b =>
-                {
-                    b.HasOne("EnCryptedAPI.Models.Domain.User", "User")
-                        .WithMany("UserSettings")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("EnCryptedAPI.Models.Domain.UserStatistic", b =>
-                {
-                    b.HasOne("EnCryptedAPI.Models.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -552,19 +422,13 @@ namespace EnCryptedAPI.Migrations
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.Task", b =>
                 {
                     b.Navigation("EncryptionJobs");
-
-                    b.Navigation("TaskHistories");
                 });
 
             modelBuilder.Entity("EnCryptedAPI.Models.Domain.User", b =>
                 {
                     b.Navigation("EncryptionJobs");
 
-                    b.Navigation("TaskHistories");
-
                     b.Navigation("Tasks");
-
-                    b.Navigation("UserSettings");
                 });
 #pragma warning restore 612, 618
         }

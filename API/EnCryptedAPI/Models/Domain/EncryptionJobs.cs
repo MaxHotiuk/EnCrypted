@@ -33,5 +33,8 @@ public class EncryptionJob
     public string? DecryptedData { get; set; }
 
     [Required]
+    public required string PassPhrase { get; set; }
+
+    [Required]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
