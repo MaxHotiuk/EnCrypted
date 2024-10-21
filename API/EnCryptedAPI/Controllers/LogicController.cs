@@ -18,13 +18,15 @@ namespace EnCryptedAPI.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly EnCryptedDbContext _context;
-        public static int tasksInProcess = 0;
+        private readonly IServiceProvider _serviceProvider;
 
-        public LogicController(UserManager<User> userManager, EnCryptedDbContext context)
+        public LogicController(UserManager<User> userManager, EnCryptedDbContext context, IServiceProvider serviceProvider)
         {
             _userManager = userManager;
             _context = context;
+            _serviceProvider = serviceProvider;
         }
+        public static int tasksInProcess = 0;
 
         [HttpPost("createtasklogic")]
         [Authorize]
@@ -127,11 +129,6 @@ namespace EnCryptedAPI.Controllers
             {
                 return Ok(new { message = "Task already completed", taskID = taskId });
             }
-            tasksInProcess++;
-            _context.TasksInProgress.Add(new TasksInProgress
-            {
-                ServerName = Environment.MachineName
-            });
 
             var cancellationToken = new Models.Domain.CancellationToken
             {
@@ -139,6 +136,7 @@ namespace EnCryptedAPI.Controllers
                 IsCanceled = false,
                 CreatedAt = DateTime.UtcNow
             };
+
             await _context.CancellationTokens.AddAsync(cancellationToken);
             await _context.SaveChangesAsync();
 
@@ -149,31 +147,33 @@ namespace EnCryptedAPI.Controllers
                 PassPhrase = task.EncryptionJobs.FirstOrDefault()?.PassPhrase ?? string.Empty
             };
 
-            try
+            _ = System.Threading.Tasks.Task.Run(async () =>
             {
-                await EncryptionLogic.EncryptOrDecryptData(request, _context);
-            }
-            catch (OperationCanceledException)
-            {
-                cancellationToken.IsCanceled = true;
-                await _context.SaveChangesAsync();
-                return BadRequest(new { message = "Task was canceled" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while processing the task", error = ex.Message });
-            }
-            finally
-            {
-                tasksInProcess--;
-                var taskInProgress = await _context.TasksInProgress
-                    .FirstOrDefaultAsync(t => t.ServerName == Environment.MachineName);
-                if (taskInProgress != null)
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    _context.TasksInProgress.Remove(taskInProgress);
-                    await _context.SaveChangesAsync();
+                    var scopedContext = scope.ServiceProvider.GetRequiredService<EnCryptedDbContext>();
+                    
+                    try
+                    {
+                        await EncryptionLogic.EncryptOrDecryptData(request, scopedContext);
+                        task.IsCompleted = true;
+                        scopedContext.Tasks.Update(task);
+                        await scopedContext.SaveChangesAsync();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        cancellationToken.IsCanceled = true;
+                        scopedContext.CancellationTokens.Update(cancellationToken);
+                        await scopedContext.SaveChangesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"\nError processing task: {ex.Message}\n");
+                    }
                 }
-            }
+            });
+
+
             return Ok(new { message = "Task started successfully", taskID = request.TaskID });
         }
 
