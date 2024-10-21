@@ -18,6 +18,7 @@ namespace EnCryptedAPI.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly EnCryptedDbContext _context;
+        public static int tasksInProcess = 0;
 
         public LogicController(UserManager<User> userManager, EnCryptedDbContext context)
         {
@@ -126,8 +127,12 @@ namespace EnCryptedAPI.Controllers
             {
                 return Ok(new { message = "Task already completed", taskID = taskId });
             }
+            tasksInProcess++;
+            _context.TasksInProgress.Add(new TasksInProgress
+            {
+                ServerName = Environment.MachineName
+            });
 
-            // Create a new CancellationToken entry in the database
             var cancellationToken = new Models.Domain.CancellationToken
             {
                 TaskID = taskId,
@@ -146,10 +151,7 @@ namespace EnCryptedAPI.Controllers
 
             try
             {
-                // Use a long-running task and periodically check if it's canceled
                 await EncryptionLogic.EncryptOrDecryptData(request, _context);
-                task.IsCompleted = true;
-                await _context.SaveChangesAsync();
             }
             catch (OperationCanceledException)
             {
@@ -161,8 +163,18 @@ namespace EnCryptedAPI.Controllers
             {
                 return StatusCode(500, new { message = "An error occurred while processing the task", error = ex.Message });
             }
-
-            return Ok(new { message = "Task completed successfully", taskID = request.TaskID });
+            finally
+            {
+                tasksInProcess--;
+                var taskInProgress = await _context.TasksInProgress
+                    .FirstOrDefaultAsync(t => t.ServerName == Environment.MachineName);
+                if (taskInProgress != null)
+                {
+                    _context.TasksInProgress.Remove(taskInProgress);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            return Ok(new { message = "Task started successfully", taskID = request.TaskID });
         }
 
         [HttpPost("cancel/{taskId}")]
@@ -229,6 +241,30 @@ namespace EnCryptedAPI.Controllers
                          cancellationToken != null && !cancellationToken.IsCanceled ? "Running" : "Pending";
 
             return Ok(new { taskId = task.TaskID, status, progress = task.Progress });
+        }
+        //api/Logic/tasksinprocess
+        [HttpGet("tasksinprocess")]
+        public IActionResult GetTasksInProcess()
+        {
+            return Ok(new { tasksInProcess });
+        }
+
+        [HttpGet("tasksinprogressonallservers")]
+        public async Task<IActionResult> GetTasksInProgressOnAllServers()
+        {
+            var tasksInProgress = await _context.TasksInProgress
+                .GroupBy(task => task.ServerName)
+                .Select(group => new 
+                {
+                    ServerName = group.Key,
+                    TaskCount = group.Count()
+                })
+                .ToListAsync();
+            if (tasksInProgress.Count == 0)
+            {
+                return NotFound(new { message = "No tasks in progress on any server" });
+            }
+            return Ok(new { tasksInProgress });
         }
     }
 }

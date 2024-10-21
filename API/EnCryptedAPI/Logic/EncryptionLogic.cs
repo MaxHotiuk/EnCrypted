@@ -2,6 +2,7 @@ using EnCryptedAPI.Data;
 using EnCryptedAPI.Requests;
 using Microsoft.EntityFrameworkCore;
 using EnCryptedAPI.Models.Domain;
+using EnCryptedAPI.Controllers;
 using CancellationToken = EnCryptedAPI.Models.Domain.CancellationToken;
 using System.Reflection;
 
@@ -13,11 +14,23 @@ namespace EnCryptedAPI.Logic
         {
             if (!request.DataEncrypted)
             {
-                await EncryptTaskData(request.TaskID, context); // Pass the cancellationToken here
+                await EncryptTaskData(request.TaskID, context);
+                var Task = await context.Tasks.FirstOrDefaultAsync(t => t.TaskID == request.TaskID);
+                if (Task != null)
+                {
+                    Task.IsCompleted = true;
+                }
+                await context.SaveChangesAsync();
             }
             else
             {
-                await DecryptTaskData(request.TaskID, context); // Pass the cancellationToken here
+                await DecryptTaskData(request.TaskID, context);
+                var Task = await context.Tasks.FirstOrDefaultAsync(t => t.TaskID == request.TaskID);
+                if (Task != null)
+                {
+                    Task.IsCompleted = true;
+                }
+                await context.SaveChangesAsync();
             }
         }
 

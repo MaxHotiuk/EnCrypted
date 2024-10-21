@@ -18,6 +18,7 @@ public class EnCryptedDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
     public DbSet<EncryptionJob> EncryptionJobs { get; set; }
     public DbSet<Models.Domain.Task> Tasks { get; set; }
     public DbSet<Models.Domain.CancellationToken> CancellationTokens { get; set; }
+    public DbSet<TasksInProgress> TasksInProgress { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -27,5 +28,6 @@ public class EnCryptedDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gu
         builder.Entity<EncryptionJob>().ToTable("EncryptionJobs");
         builder.Entity<Models.Domain.Task>().ToTable("Tasks");
         builder.Entity<Models.Domain.CancellationToken>().ToTable("CancelationTokens");
+        builder.Entity<TasksInProgress>().ToTable("TasksInProgress");
     }
 }

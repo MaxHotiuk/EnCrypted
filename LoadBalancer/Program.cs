@@ -1,7 +1,13 @@
+using Yarp.ReverseProxy.LoadBalancing;
+using LoadBalancer;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<ILoadBalancingPolicy, CustomLoadBalancer>();
 
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -24,6 +30,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowSpecificOrigin");
+
 app.UseHttpsRedirection();
 
 app.MapReverseProxy();
@@ -31,4 +39,3 @@ app.MapReverseProxy();
 app.MapHealthChecks("health");
 
 app.Run();
-

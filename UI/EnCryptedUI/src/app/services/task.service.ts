@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
 import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
+import { Servers } from '../pages/users/users.component';
 
 export interface EncryptionJob {
   id: string;
@@ -112,4 +113,19 @@ export class TaskService {
   public cancelTask(taskID: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}Logic/cancel/${taskID}`, {});
   }
+
+  public getServerLoadingData(): Observable<Servers> {
+    return this.http.get<Servers>(`${this.baseUrl}Logic/tasksinprogressonallservers`).pipe(
+      catchError((error) => {
+        if (error.status === 400) {
+          console.error('Bad request:', error.message);
+          return of({ $id: '', tasksInProgress: 0 } as unknown as Servers);
+        } else {
+          console.error('Error fetching server loading data:', error);
+          return of({ $id: '', tasksInProgress: [] } as Servers);
+        }
+      })
+    );
+  }
+
 }

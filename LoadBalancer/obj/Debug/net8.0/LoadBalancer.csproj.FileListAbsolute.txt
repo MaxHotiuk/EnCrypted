@@ -70,3 +70,4 @@
 /Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/obj/Debug/net8.0/LoadBalancer.pdb
 /Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/obj/Debug/net8.0/LoadBalancer.genruntimeconfig.cache
 /Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/obj/Debug/net8.0/ref/LoadBalancer.dll
+/Users/maxhotiuk/Desktop/5sem/EnCrypted/EnCrypted/LoadBalancer/bin/Debug/net8.0/Newtonsoft.Json.dll

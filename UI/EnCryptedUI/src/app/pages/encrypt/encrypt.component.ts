@@ -49,7 +49,7 @@ export class EncryptComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.form = this.fb.group({
       jobName: ['', Validators.required],
-      text: ['', [Validators.required, this.maxLengthValidator(10000)]],
+      text: ['', [Validators.required, this.maxLengthValidator(1000000)]],
       passPhrase: ['', Validators.required],
       operation: ['encrypt', Validators.required],
       description: ['', Validators.required]
