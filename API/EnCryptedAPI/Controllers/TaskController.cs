@@ -86,7 +86,7 @@ namespace EnCryptedAPI.Controllers
                 .Where(t => t.UserID == userId)
                 .ToListAsync();
 
-            if (!tasks.Any())
+            if (tasks.Count == 0)
             {
                 return NotFound("No tasks found for this user.");
             }

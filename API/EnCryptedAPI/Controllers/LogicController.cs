@@ -242,7 +242,7 @@ namespace EnCryptedAPI.Controllers
 
             return Ok(new { taskId = task.TaskID, status, progress = task.Progress });
         }
-        //api/Logic/tasksinprocess
+
         [HttpGet("tasksinprocess")]
         public IActionResult GetTasksInProcess()
         {
